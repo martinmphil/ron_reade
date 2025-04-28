@@ -1,2 +1,2 @@
-# ron_reade
-Text-to-speech local in a browser
+# Ron Reade
+Realistic Text-To-Speech in a browser with local neural networks. 
