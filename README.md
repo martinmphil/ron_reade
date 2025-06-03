@@ -5,7 +5,7 @@ Realistic Text-To-Speech in a browser with local neural networks.
 The text-to-speech pipeline creates an audio buffer object (ie audio chunk). 
 This audio chunk object has an `audio` property which holds the audio waveform data in a Float32Array as an audio sample. 
 eg 
-``` 
+```
 {
   audio: Float32Array(10240) [
     -0.000004008579253422795,
@@ -14,7 +14,7 @@ eg
   ],
   sampling_rate: 16000
 }
-``` 
+```
 
 ## References 
 
