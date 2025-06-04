@@ -1,24 +1,27 @@
 import './style.css'
-import typescriptLogo from './typescript.svg'
-import viteLogo from '/vite.svg'
-import { setupCounter } from './counter.ts'
+import { setupRon } from './ron.ts'
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="${viteLogo}" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://www.typescriptlang.org/" target="_blank">
-      <img src="${typescriptLogo}" class="logo vanilla" alt="TypeScript logo" />
-    </a>
-    <h1>Vite + TypeScript</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite and TypeScript logos to learn more
-    </p>
-  </div>
+<header>
+  <p>Text-To-Speech via <a
+      href="https://huggingface.co/docs/transformers.js/index">Transformers.js</a></p>
+</header>
+
+<main>
+  <h1>Ron Reade</h1>
+  <p><label for="ronText">Enter text:</label></p>
+  <textarea name="ronText" id="ronText" rows="20" cols="33">Know thyself</textarea>
+  <button id="speak-button" type="button">Read Aloud</button>
+  <button id="clear-button" type="button">Clear Text</button>
+  <audio id="audio-output" controls></audio>
+  <p id="statusReport">Please wait...</p>
+  <hr>
+</main>
+
+<footer>
+  <p><a href="https://github.com/martinmphil/ron_reade" target="_blank"
+      rel="noopener noreferrer">Project on GitHub</a></p>
+</footer>
 `
 
-setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)
+setupRon(document.querySelector<HTMLDivElement>('ron')!)
