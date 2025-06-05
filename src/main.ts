@@ -15,10 +15,14 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <button id="clear-button" type="button">Clear Text</button>
   <audio id="audio-output" controls></audio>
   <p id="statusReport">Please wait...</p>
-  <hr>
 </main>
 
 <footer>
+  <h2>How it works</h2>
+  <p>
+    Ron Reade uses advanced machine learning running right in your browser to convert text
+    into natural-sounding speech. Your text stays private on your device.
+  </p>
   <p><a href="https://github.com/martinmphil/ron_reade" target="_blank"
       rel="noopener noreferrer">Project on GitHub</a></p>
 </footer>
