@@ -156,12 +156,20 @@ button:hover {
   /* Darker green on hover */
 }
 
-#clear-button {
+button[disabled] {
+  opacity: 0.4;
+  /* Grey for disabled buttons */
+  cursor: not-allowed;
+}
+
+#clear_button,
+#halt_button {
   background-color: #6c757d;
   /* Grey for secondary action */
 }
 
-#clear-button:hover {
+#clear_button:hover,
+#halt_button:hover {
   background-color: #5a6268;
 }
 
@@ -174,7 +182,7 @@ audio {
   /* Space below the audio player */
 }
 
-#statusReport {
+#status_report {
   text-align: center;
   color: black;
   margin-top: 1rem;
