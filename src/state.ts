@@ -1,5 +1,3 @@
-// src/state.ts
-
 /**
  * Defines the possible states for the core text-to-speech and playback process.
  */
@@ -13,16 +11,19 @@ export type AudioLifecycleState =
   | 'error';
 
 /**
- * Defines the possible states for the user's text input.
+ * Defines the possible states for the user's text input lifecycle.
+ * - 'empty': The textarea is empty.
+ * - 'hasRawText': User has entered new text that has not yet been submitted.
+ * - 'hasSubmittedText': Text in the textarea has been submitted for audo processing.
  */
-export type InputState = 'empty' | 'hasText';
+export type InputLifecycleState = 'empty' | 'hasRawText' | 'hasSubmittedText';
 
 /**
  * Defines the overall application state using a statechart-like model.
  */
 export interface AppState {
   audioLifecycle: AudioLifecycleState;
-  input: InputState;
+  inputLifecycle: InputLifecycleState;
   retryCount: number;
   errorMessage: string | null;
 }
@@ -32,7 +33,7 @@ export interface AppState {
  */
 export const initialState: AppState = {
   audioLifecycle: 'modelLoading',
-  input: 'empty',
+  inputLifecycle: 'empty',
   retryCount: 0,
   errorMessage: null,
 };

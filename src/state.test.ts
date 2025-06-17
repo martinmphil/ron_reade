@@ -1,14 +1,12 @@
-// src/state.test.ts
-
 import { describe, it, expect } from 'vitest';
-import { initialState, type AppState } from './state';
+import { initialState, type AppState, type InputLifecycleState } from './state';
 
 describe('Application State Machine', () => {
 
   it('should have the correct initial state when the app loads', () => {
     const expectedInitialState: AppState = {
       audioLifecycle: 'modelLoading',
-      input: 'empty',
+      inputLifecycle: 'empty',
       retryCount: 0,
       errorMessage: null,
     };
@@ -19,6 +17,6 @@ describe('Application State Machine', () => {
   // Add more tests here for state transitions later.
   // For example:
   // it('should transition from modelLoading to idle on success', () => { ... });
-  // it('should transition from empty to hasText when user types', () => { ... });
+  // it('should transition from empty to hasRawText when user types', () => { ... });
 
 });

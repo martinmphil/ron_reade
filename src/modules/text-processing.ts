@@ -1,5 +1,3 @@
-// src/modules/text-processing.ts
-
 const MAX_CHUNK_LENGTH = 1000;
 
 /**
