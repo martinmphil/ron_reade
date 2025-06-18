@@ -10,7 +10,8 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 <main>
   <h1>Ron Reade</h1>
   <p><label for="ron_text">Enter text:</label></p>
-  <textarea name="ron_text" id="ron_text" rows="20" cols="33">Know thyself</textarea>
+  <textarea name="ron_text" id="ron_text" rows="20" cols="33"
+    placeholder="Enter text here"></textarea>
   <button id="process_text_button" type="button" disabled>Read Aloud</button>
   <button id="clear_button" type="button" disabled>Clear Text</button>
   <button id="halt_button" type="button" disabled>Halt Processing</button>
