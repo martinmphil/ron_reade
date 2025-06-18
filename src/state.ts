@@ -8,13 +8,14 @@ export type AudioLifecycleState =
   | 'halted'
   | 'readyToPlay'
   | 'playing'
+  | 'paused'
   | 'error';
 
 /**
  * Defines the possible states for the user's text input lifecycle.
  * - 'empty': The textarea is empty.
  * - 'hasRawText': User has entered new text that has not yet been submitted.
- * - 'hasSubmittedText': Text in the textarea has been submitted for audo processing.
+ * - 'hasSubmittedText': Text in the textarea has been submitted for processing.
  */
 export type InputLifecycleState = 'empty' | 'hasRawText' | 'hasSubmittedText';
 
@@ -24,7 +25,8 @@ export type InputLifecycleState = 'empty' | 'hasRawText' | 'hasSubmittedText';
 export interface AppState {
   audioLifecycle: AudioLifecycleState;
   inputLifecycle: InputLifecycleState;
-  retryCount: number;
+  modelLoadRetryCount: number;
+  processingRetryCount: number;
   errorMessage: string | null;
 }
 
@@ -34,6 +36,7 @@ export interface AppState {
 export const initialState: AppState = {
   audioLifecycle: 'modelLoading',
   inputLifecycle: 'empty',
-  retryCount: 0,
+  modelLoadRetryCount: 0,
+  processingRetryCount: 0,
   errorMessage: null,
 };
