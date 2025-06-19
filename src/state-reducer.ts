@@ -119,9 +119,11 @@ export function stateReducer(state: AppState, action: Action): AppState {
       };
 
     case 'USER_HALTED_PROCESSING':
+      // Return to 'idle' and allow the user to resubmit the same text.
       return {
         ...state,
-        audioLifecycle: 'halted',
+        audioLifecycle: 'idle',
+        inputLifecycle: 'hasRawText',
       };
 
     case 'USER_PLAYED_AUDIO':

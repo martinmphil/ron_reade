@@ -5,7 +5,6 @@ export type AudioLifecycleState =
   | 'modelLoading'
   | 'idle'
   | 'processing'
-  | 'halted'
   | 'readyToPlay'
   | 'playing'
   | 'paused'

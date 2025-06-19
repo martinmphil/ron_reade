@@ -78,7 +78,7 @@ describe('Application State Machine Reducer', () => {
 
     describe('Processing', () => {
       const readyState: AppState = { ...initialState, audioLifecycle: 'idle', inputLifecycle: 'hasRawText' };
-      const processingState: AppState = { ...initialState, audioLifecycle: 'processing' };
+      const processingState: AppState = { ...initialState, audioLifecycle: 'processing', inputLifecycle: 'hasSubmittedText' };
 
       it('should transition from "idle" to "processing" when text is submitted', () => {
         const action: Action = { type: 'PROCESS_TEXT_SUBMITTED' };
@@ -94,10 +94,11 @@ describe('Application State Machine Reducer', () => {
         expect(newState.processingRetryCount).toBe(0);
       });
 
-      it('should transition from "processing" to "halted" when user halts', () => {
+      it('should return to "idle" and "hasRawText" when user halts processing', () => {
         const action: Action = { type: 'USER_HALTED_PROCESSING' };
         const newState = stateReducer(processingState, action);
-        expect(newState.audioLifecycle).toBe('halted');
+        expect(newState.audioLifecycle).toBe('idle');
+        expect(newState.inputLifecycle).toBe('hasRawText');
       });
 
       it('should stay "processing" and increment processingRetryCount on failure', () => {
