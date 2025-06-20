@@ -1,5 +1,3 @@
-// src/ui-manager.ts
-
 import { type AppState } from './state';
 
 /**
@@ -22,9 +20,10 @@ export interface UIElements {
  * @param elements A collection of the DOM elements to manage.
  * @param state The current application state to render.
  */
-export function initializeUIManager(elements: UIElements, state: AppState): void {
+export function renderUI(elements: UIElements, state: AppState): void {
+  const { audioLifecycle, inputLifecycle, errorMessage } = state;
+
   // --- Button State ---
-  const { audioLifecycle, inputLifecycle } = state;
 
   // The 'Process' button is enabled only when the app is idle or paused, AND there is new text.
   elements.processTextButton.disabled = !(
@@ -39,6 +38,7 @@ export function initializeUIManager(elements: UIElements, state: AppState): void
   elements.clearButton.disabled = elements.ronText.value.trim().length === 0;
 
   // --- Visibility ---
+
   // The audio player is only visible when audio is ready to be played or is currently playing/paused.
   const isAudioVisible =
     audioLifecycle === 'readyToPlay' ||
@@ -47,11 +47,38 @@ export function initializeUIManager(elements: UIElements, state: AppState): void
   elements.audioOutput.style.display = isAudioVisible ? 'block' : 'none';
 
   // --- Status Message ---
-  // A simple switch to determine the correct status message.
+
+  // A switch statement to determine the correct status message based on the app state.
   switch (audioLifecycle) {
     case 'modelLoading':
       elements.statusReport.textContent = 'Downloading artificial neural network...';
       break;
-    // Add other cases here as we build them...
+    case 'idle':
+      elements.statusReport.textContent =
+        inputLifecycle === 'hasRawText'
+          ? 'Ready to convert your text into speech.'
+          : 'Please enter text to be read aloud.';
+      break;
+    case 'processing':
+      elements.statusReport.textContent = 'Processing...';
+      break;
+    case 'readyToPlay':
+      elements.statusReport.textContent = 'Please press the play button on the audio player.';
+      break;
+    case 'playing':
+      elements.statusReport.textContent = 'Playback in progress...';
+      break;
+    case 'paused':
+      elements.statusReport.textContent =
+        inputLifecycle === 'hasRawText'
+          ? 'Playback paused. Ready to process new text.'
+          : 'Playback paused.'; // Default message if no new text
+      break;
+    case 'error':
+      elements.statusReport.textContent = errorMessage || 'An unknown error occurred.';
+      break;
+    default:
+      // This should not be reachable if all states are handled.
+      elements.statusReport.textContent = '';
   }
 }

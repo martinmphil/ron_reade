@@ -1,9 +1,7 @@
-// src/ui-manager.test.ts
-
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { JSDOM } from 'jsdom';
-import { initializeUIManager } from './ui-manager';
-import { initialState } from './state';
+import { renderUI } from './ui-manager';
+import { initialState, type AppState } from './state';
 
 // Setup a simulated DOM environment for testing
 const dom = new JSDOM(`
@@ -28,7 +26,7 @@ const dom = new JSDOM(`
 globalThis.document = dom.window.document;
 globalThis.window = dom.window as any;
 
-describe('UI Manager', () => {
+describe('UI Manager: renderUI', () => {
 
   // A helper function to get all the UI elements from the DOM
   const getUIElements = () => ({
@@ -40,25 +38,100 @@ describe('UI Manager', () => {
     statusReport: document.getElementById('status_report') as HTMLParagraphElement,
   });
 
-  it('should initialize the UI correctly based on the initial state', () => {
-    // We don't need a real store or dispatcher for this test,
-    // we just need to see if the UI renders the state correctly.
+  // Reset the DOM to its initial state before each test
+  beforeEach(() => {
     const elements = getUIElements();
-
-    // The initializeUIManager function will contain the rendering logic.
-    // We pass it the elements and the state we want it to render.
-    initializeUIManager(elements, initialState);
-
-    // Assertions based on the `initialState`
-    expect(elements.statusReport.textContent).toBe('Downloading artificial neural network...');
-    expect(elements.processTextButton.disabled).toBe(true);
-    expect(elements.haltButton.disabled).toBe(true);
-    expect(elements.audioOutput.style.display).toBe('none');
-    expect(elements.clearButton.disabled).toBe(true);
+    elements.ronText.value = '';
+    document.body.innerHTML = dom.window.document.body.innerHTML;
   });
 
-  // We will add more tests here later, for example:
-  // it('should disable the process button when audio is playing', () => { ... });
-  // it('should show the correct status message when processing', () => { ... });
+  describe('Initial & Idle States', () => {
+    it('should render the UI correctly for the initial "modelLoading" state', () => {
+      const elements = getUIElements();
+      renderUI(elements, initialState);
+
+      expect(elements.statusReport.textContent).toBe('Downloading artificial neural network...');
+      expect(elements.processTextButton.disabled).toBe(true);
+      expect(elements.haltButton.disabled).toBe(true);
+      expect(elements.audioOutput.style.display).toBe('none');
+      expect(elements.clearButton.disabled).toBe(true);
+    });
+
+    it('should enable the process button when idle and text is present', () => {
+      const elements = getUIElements();
+      elements.ronText.value = 'Some new text';
+      const state: AppState = { ...initialState, audioLifecycle: 'idle', inputLifecycle: 'hasRawText' };
+      renderUI(elements, state);
+
+      expect(elements.processTextButton.disabled).toBe(false);
+      expect(elements.statusReport.textContent).toBe('Ready to convert your text into speech.');
+    });
+
+    it('should disable the process button when idle and text is empty', () => {
+      const elements = getUIElements();
+      const state: AppState = { ...initialState, audioLifecycle: 'idle', inputLifecycle: 'empty' };
+      renderUI(elements, state);
+
+      expect(elements.processTextButton.disabled).toBe(true);
+      expect(elements.statusReport.textContent).toBe('Please enter text to be read aloud.');
+    });
+  });
+
+  describe('Processing State', () => {
+    it('should show the correct UI when processing text', () => {
+      const elements = getUIElements();
+      const state: AppState = { ...initialState, audioLifecycle: 'processing', inputLifecycle: 'hasSubmittedText' };
+      renderUI(elements, state);
+
+      expect(elements.processTextButton.disabled).toBe(true);
+      expect(elements.haltButton.disabled).toBe(false); // Halt button enabled
+      expect(elements.statusReport.textContent).toBe('Processing...');
+      expect(elements.audioOutput.style.display).toBe('none');
+    });
+  });
+
+  describe('Playback States', () => {
+    it('should show the audio player when ready to play', () => {
+      const elements = getUIElements();
+      const state: AppState = { ...initialState, audioLifecycle: 'readyToPlay', inputLifecycle: 'hasSubmittedText' };
+      renderUI(elements, state);
+
+      expect(elements.processTextButton.disabled).toBe(true);
+      expect(elements.audioOutput.style.display).toBe('block');
+      expect(elements.statusReport.textContent).toBe('Please press the play button on the audio player.');
+    });
+
+    it('should update the UI correctly when playing', () => {
+      const elements = getUIElements();
+      const state: AppState = { ...initialState, audioLifecycle: 'playing', inputLifecycle: 'hasSubmittedText' };
+      renderUI(elements, state);
+
+      expect(elements.processTextButton.disabled).toBe(true);
+      expect(elements.statusReport.textContent).toBe('Playback in progress...');
+    });
+
+    it('should enable the process button if paused and new text is entered', () => {
+      const elements = getUIElements();
+      elements.ronText.value = 'A new thought occurred to me.';
+      const state: AppState = { ...initialState, audioLifecycle: 'paused', inputLifecycle: 'hasRawText' };
+      renderUI(elements, state);
+
+      expect(elements.processTextButton.disabled).toBe(false); // The key check
+      expect(elements.statusReport.textContent).toBe('Playback paused. Ready to process new text.');
+    });
+  });
+
+  describe('Error State', () => {
+    it('should display an error message and disable controls in the error state', () => {
+      const elements = getUIElements();
+      const errorMessage = 'Something went terribly wrong.';
+      const state: AppState = { ...initialState, audioLifecycle: 'error', errorMessage: errorMessage };
+      renderUI(elements, state);
+
+      expect(elements.statusReport.textContent).toBe(errorMessage);
+      expect(elements.processTextButton.disabled).toBe(true);
+      expect(elements.haltButton.disabled).toBe(true);
+    });
+  });
 
 });
