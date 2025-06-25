@@ -3,6 +3,11 @@ import { initialState } from './state';
 import { stateReducer, type Action } from './state-reducer';
 import { renderUI, type UIElements } from './ui-manager';
 import { loadModel, processTextToAudio } from './tts-service';
+import { chunkText } from './modules/text-processing';
+import { encodeWav } from './wav-encoder';
+
+// A constant for the audio sample rate, as defined by the TTS model.
+const SAMPLE_RATE = 16000;
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 <header>
@@ -19,6 +24,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <button id="clear_button" type="button" disabled>Clear Text</button>
   <button id="halt_button" type="button" disabled>Halt Processing</button>
   <audio id="audio_output" controls></audio>
+  <progress id="progress_bar" style="display: none; width: 100%;"></progress>
   <p id="status_report">Downloading artificial neural network...</p>
 </main>
 
@@ -39,6 +45,8 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 // --- Application Store ---
 const store = {
   state: initialState,
+  // A flag to signal the processing loop to stop.
+  haltSignal: false,
 };
 
 // --- App Initialization ---
@@ -54,6 +62,7 @@ function main() {
     clearButton: document.getElementById('clear_button') as HTMLButtonElement,
     haltButton: document.getElementById('halt_button') as HTMLButtonElement,
     audioOutput: document.getElementById('audio_output') as HTMLAudioElement,
+    progressBar: document.getElementById('progress_bar') as HTMLProgressElement,
     statusReport: document.getElementById('status_report') as HTMLParagraphElement,
   };
 
@@ -72,9 +81,7 @@ function main() {
 }
 
 /**
- * Attaches all necessary DOM event listeners to the UI elements.
- * @param elements The collection of UI elements.
- * @param dispatch The function to call to dispatch actions.
+ * Attach all necessary DOM event listeners to the UI elements.
  */
 function setupEventListeners(elements: UIElements, dispatch: (action: Action) => void) {
   elements.ronText.addEventListener('input', () => {
@@ -83,22 +90,16 @@ function setupEventListeners(elements: UIElements, dispatch: (action: Action) =>
 
   elements.clearButton.addEventListener('click', () => {
     elements.ronText.value = '';
-    // Trigger the input event to ensure UI updates correctly
     elements.ronText.dispatchEvent(new Event('input'));
     dispatch({ type: 'USER_CLEARED_TEXT' });
   });
 
   elements.processTextButton.addEventListener('click', () => {
-    const textToProcess = elements.ronText.value;
-    dispatch({ type: 'PROCESS_TEXT_SUBMITTED' });
-
-    if (store.state.audioLifecycle === 'processing') {
-      runTextProcessing(dispatch, textToProcess);
-    }
+    runTextProcessing(dispatch, elements, elements.ronText.value);
   });
 
   elements.haltButton.addEventListener('click', () => {
-    // Add cancellation logic here later.
+    store.haltSignal = true; // Signal the processing loop to stop.
     dispatch({ type: 'USER_HALTED_PROCESSING' });
   });
 
@@ -125,23 +126,88 @@ async function initializeModel(dispatch: (action: Action) => void) {
   } catch (error) {
     console.error('Failed to load model:', error);
     dispatch({ type: 'MODEL_LOAD_FAILURE' });
-    // Add retry logic here based on the state's retry count.
+
+    // Check state for retry logic
+    if (store.state.audioLifecycle === 'modelLoading') {
+      setTimeout(() => initializeModel(dispatch), 2000 * store.state.modelLoadRetryCount);
+    }
   }
 }
 
 /**
- * Manages the text-to-speech conversion process.
+ * Manages the full text-to-speech conversion pipeline.
  */
-async function runTextProcessing(dispatch: (action: Action) => void, text: string) {
-  // Add the text chunking and audio concatenation logic here.
-  // For now, we process the whole text as one chunk.
+async function runTextProcessing(
+  dispatch: (action: Action) => void,
+  elements: UIElements,
+  text: string
+) {
+
+  if (
+    (store.state.audioLifecycle !== 'idle' && store.state.audioLifecycle !== 'paused') ||
+    store.state.inputLifecycle !== 'hasRawText'
+  ) {
+    return;
+  }
+
+  store.haltSignal = false; // Reset the halt signal for the new job.
+  let combinedAudio = new Float32Array(0);
+
+  // Chunk the text first to get the total count.
+  const textChunks = chunkText(text);
+  if (textChunks.length === 0) return;
+
+  // Dispatch the starting action with the total number of chunks.
+  dispatch({
+    type: 'PROCESS_TEXT_SUBMITTED',
+    payload: { totalChunks: textChunks.length },
+  });
+
   try {
-    const audioData = await processTextToAudio(text);
-    // TODO: Create a WAV blob from audioData and set it as the audioOutput.src
-    console.log('Generated audio data:', audioData);
+    // Iterate through each chunk.
+    for (const chunk of textChunks) {
+
+      if (store.haltSignal) {
+        console.log('Processing halted by user.');
+        return;
+      }
+
+      // Process the chunk to get audio data.
+      const audioChunk = await processTextToAudio(chunk);
+
+      // Dispatch progress update after a chunk is successfully processed.
+      dispatch({ type: 'PROCESSING_CHUNK_SUCCESS' });
+
+      // Concatenate the new audio data.
+      const newCombined = new Float32Array(combinedAudio.length + audioChunk.length);
+      newCombined.set(combinedAudio, 0);
+      newCombined.set(audioChunk, combinedAudio.length);
+      combinedAudio = newCombined;
+    }
+
+    // Encode the final buffer to a WAV Blob.
+    const wavBlob = encodeWav(combinedAudio, SAMPLE_RATE);
+
+    // Create an object URL and update the audio player.
+    const audioUrl = URL.createObjectURL(wavBlob);
+    elements.audioOutput.src = audioUrl;
+
+    // Signal that processing was successful.
     dispatch({ type: 'PROCESSING_SUCCESS' });
+
   } catch (error) {
     console.error('Failed to process text:', error);
     dispatch({ type: 'PROCESSING_FAILURE', payload: (error as Error).message });
+
+    // Retry logic
+
+    setTimeout(() => runTextProcessing(dispatch, elements, text), 2000 * store.state.processingRetryCount);
+
+
+
+    // if (store.state.audioLifecycle === 'processing') {
+    //   setTimeout(() => runTextProcessing(dispatch, elements, text), 2000 * store.state.processingRetryCount);
+    // }
+
   }
 }
