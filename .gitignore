@@ -1,3 +1,6 @@
+# Sizeable files
+public/models
+
 # Logs
 logs
 *.log
