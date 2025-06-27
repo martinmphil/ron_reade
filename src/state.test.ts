@@ -12,6 +12,8 @@ describe('Application State Machine Reducer', () => {
         modelLoadRetryCount: 0,
         processingRetryCount: 0,
         errorMessage: null,
+        processingProgress: 0,
+        processingTotal: 0
       };
       expect(initialState).toEqual(expectedInitialState);
     });
@@ -46,7 +48,7 @@ describe('Application State Machine Reducer', () => {
 
     it('should transition from "hasRawText" to "hasSubmittedText" when text is processed', () => {
       const state: AppState = { ...initialState, audioLifecycle: 'idle', inputLifecycle: 'hasRawText' };
-      const action: Action = { type: 'PROCESS_TEXT_SUBMITTED' };
+      const action: Action = { type: 'PROCESS_TEXT_SUBMITTED', payload: { totalChunks: 1 } };
       const newState = stateReducer(state, action);
       expect(newState.inputLifecycle).toBe('hasSubmittedText');
     });
@@ -55,7 +57,7 @@ describe('Application State Machine Reducer', () => {
   describe('Audio Lifecycle Transitions', () => {
     describe('Model Loading', () => {
       it('should transition from "modelLoading" to "idle" on success', () => {
-        const action: Action = { type: 'MODEL_LOAD_SUCCESS' };
+        const action: Action = { type: 'MODEL_LOAD_SUCCESS', };
         const newState = stateReducer(initialState, action);
         expect(newState.audioLifecycle).toBe('idle');
       });
@@ -81,7 +83,7 @@ describe('Application State Machine Reducer', () => {
       const processingState: AppState = { ...initialState, audioLifecycle: 'processing', inputLifecycle: 'hasSubmittedText' };
 
       it('should transition from "idle" to "processing" when text is submitted', () => {
-        const action: Action = { type: 'PROCESS_TEXT_SUBMITTED' };
+        const action: Action = { type: 'PROCESS_TEXT_SUBMITTED', payload: { totalChunks: 1 } };
         const newState = stateReducer(readyState, action);
         expect(newState.audioLifecycle).toBe('processing');
       });
@@ -153,21 +155,21 @@ describe('Application State Machine Reducer', () => {
   describe('Combined State Logic', () => {
     it('should NOT process text if audioLifecycle is not "idle" or "paused"', () => {
       const state: AppState = { ...initialState, audioLifecycle: 'playing', inputLifecycle: 'hasRawText' };
-      const action: Action = { type: 'PROCESS_TEXT_SUBMITTED' };
+      const action: Action = { type: 'PROCESS_TEXT_SUBMITTED', payload: { totalChunks: 1 } };
       const newState = stateReducer(state, action);
       expect(newState.audioLifecycle).toBe('playing');
     });
 
     it('should NOT process text if inputLifecycle is not "hasRawText"', () => {
       const state: AppState = { ...initialState, audioLifecycle: 'idle', inputLifecycle: 'empty' };
-      const action: Action = { type: 'PROCESS_TEXT_SUBMITTED' };
+      const action: Action = { type: 'PROCESS_TEXT_SUBMITTED', payload: { totalChunks: 1 } };
       const newState = stateReducer(state, action);
       expect(newState.audioLifecycle).toBe('idle');
     });
 
     it('should allow processing from "paused" state if input is "hasRawText"', () => {
       const state: AppState = { ...initialState, audioLifecycle: 'paused', inputLifecycle: 'hasRawText' };
-      const action: Action = { type: 'PROCESS_TEXT_SUBMITTED' };
+      const action: Action = { type: 'PROCESS_TEXT_SUBMITTED', payload: { totalChunks: 1 } };
       const newState = stateReducer(state, action);
       expect(newState.audioLifecycle).toBe('processing');
       expect(newState.inputLifecycle).toBe('hasSubmittedText');

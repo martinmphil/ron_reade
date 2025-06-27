@@ -8,7 +8,6 @@ const MAX_RETRIES = 7;
 
 type UserInputAction = { type: 'USER_INPUT_TEXT' };
 type UserClearedTextAction = { type: 'USER_CLEARED_TEXT' };
-type ProcessTextSubmittedAction = { type: 'PROCESS_TEXT_SUBMITTED' };
 type ModelLoadSuccessAction = { type: 'MODEL_LOAD_SUCCESS' };
 type ModelLoadFailureAction = { type: 'MODEL_LOAD_FAILURE' };
 type ProcessingSuccessAction = { type: 'PROCESSING_SUCCESS' };
@@ -17,12 +16,13 @@ type ProcessingFailureAction = { type: 'PROCESSING_FAILURE'; payload: string };
 type UserPlayedAudioAction = { type: 'USER_PLAYED_AUDIO' };
 type UserPausedAudioAction = { type: 'USER_PAUSED_AUDIO' };
 type AudioPlaybackEndedAction = { type: 'AUDIO_PLAYBACK_ENDED' };
+type ProcessTextSubmittedAction = { type: 'PROCESS_TEXT_SUBMITTED', payload: { totalChunks: number } };
+type ProcessingChunkSuccessAction = { type: 'PROCESSING_CHUNK_SUCCESS' };
 
 
 export type Action =
   | UserInputAction
   | UserClearedTextAction
-  | ProcessTextSubmittedAction
   | ModelLoadSuccessAction
   | ModelLoadFailureAction
   | ProcessingSuccessAction
@@ -30,7 +30,9 @@ export type Action =
   | ProcessingFailureAction
   | UserPlayedAudioAction
   | UserPausedAudioAction
-  | AudioPlaybackEndedAction;
+  | AudioPlaybackEndedAction
+  | ProcessTextSubmittedAction
+  | ProcessingChunkSuccessAction;
 
 
 /**
@@ -58,7 +60,6 @@ export function stateReducer(state: AppState, action: Action): AppState {
 
     // --- Combined Logic Case ---
     case 'PROCESS_TEXT_SUBMITTED':
-      // Guard clause: Only process if the state is correct.
       if (
         (state.audioLifecycle === 'idle' || state.audioLifecycle === 'paused') &&
         state.inputLifecycle === 'hasRawText'
@@ -67,11 +68,20 @@ export function stateReducer(state: AppState, action: Action): AppState {
           ...state,
           audioLifecycle: 'processing',
           inputLifecycle: 'hasSubmittedText',
-          processingRetryCount: 0, // Reset retries for the new job
+          processingRetryCount: 0,
           errorMessage: null,
+          processingProgress: 0,
+          processingTotal: action.payload.totalChunks,
         };
       }
-      return state; // If conditions are not met, do nothing.
+      return state;
+
+    case 'PROCESSING_CHUNK_SUCCESS':
+      // This new action increments the progress counter.
+      return {
+        ...state,
+        processingProgress: state.processingProgress + 1,
+      };
 
     // --- Audio Lifecycle Cases ---
     case 'MODEL_LOAD_SUCCESS':

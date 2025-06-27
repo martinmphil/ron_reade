@@ -27,6 +27,8 @@ export interface AppState {
   modelLoadRetryCount: number;
   processingRetryCount: number;
   errorMessage: string | null;
+  processingProgress: number;
+  processingTotal: number;
 }
 
 /**
@@ -38,4 +40,6 @@ export const initialState: AppState = {
   modelLoadRetryCount: 0,
   processingRetryCount: 0,
   errorMessage: null,
+  processingProgress: 0,
+  processingTotal: 0,
 };
