@@ -22,7 +22,12 @@
     <button id="process_text_button" type="button" disabled>Read Aloud</button>
     <button id="clear_button" type="button" disabled>Clear Text</button>
     <button id="halt_button" type="button" disabled>Halt Processing</button>
-    <audio id="audio_output" controls></audio>
+    <audio id="audio_output" controls
+      style="opacity: 0.4; transition: opacity 0.3s ease-in-out;">
+    </audio>
+    <progress id="progress_bar" max="100" value="0"
+      style="opacity: 0; transition: opacity 0.3s ease-in-out; width: 100%;">
+    </progress>
     <p id="status_report">Downloading artificial neural network...</p>
   </main>
 

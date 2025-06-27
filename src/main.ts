@@ -23,8 +23,12 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <button id="process_text_button" type="button" disabled>Read Aloud</button>
   <button id="clear_button" type="button" disabled>Clear Text</button>
   <button id="halt_button" type="button" disabled>Halt Processing</button>
-  <audio id="audio_output" controls></audio>
-  <progress id="progress_bar" style="display: none; width: 100%;"></progress>
+  <audio id="audio_output" controls
+    style="opacity: 0.4; transition: opacity 0.3s ease-in-out;">
+  </audio>
+  <progress id="progress_bar" max="100" value="0"
+    style="opacity: 0; transition: opacity 0.3s ease-in-out; width: 100%;">
+  </progress>
   <p id="status_report">Downloading artificial neural network...</p>
 </main>
 
@@ -99,7 +103,8 @@ function setupEventListeners(elements: UIElements, dispatch: (action: Action) =>
   });
 
   elements.haltButton.addEventListener('click', () => {
-    store.haltSignal = true; // Signal the processing loop to stop.
+    // Signal the processing loop to stop.
+    store.haltSignal = true;
     dispatch({ type: 'USER_HALTED_PROCESSING' });
   });
 
@@ -150,7 +155,9 @@ async function runTextProcessing(
     return;
   }
 
-  store.haltSignal = false; // Reset the halt signal for the new job.
+  // Reset the halt signal for the new job.
+  store.haltSignal = false;
+
   let combinedAudio = new Float32Array(0);
 
   // Chunk the text first to get the total count.
@@ -192,7 +199,7 @@ async function runTextProcessing(
     const audioUrl = URL.createObjectURL(wavBlob);
     elements.audioOutput.src = audioUrl;
 
-    // Signal that processing was successful.
+    // Signal successful processing
     dispatch({ type: 'PROCESSING_SUCCESS' });
 
   } catch (error) {
@@ -201,13 +208,9 @@ async function runTextProcessing(
 
     // Retry logic
 
-    setTimeout(() => runTextProcessing(dispatch, elements, text), 2000 * store.state.processingRetryCount);
-
-
-
-    // if (store.state.audioLifecycle === 'processing') {
-    //   setTimeout(() => runTextProcessing(dispatch, elements, text), 2000 * store.state.processingRetryCount);
-    // }
+    if (store.state.audioLifecycle as 'processing' | 'idle' | 'paused' === 'processing') {
+      setTimeout(() => runTextProcessing(dispatch, elements, text), 2000 * store.state.processingRetryCount);
+    }
 
   }
 }

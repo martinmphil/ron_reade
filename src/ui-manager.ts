@@ -2,7 +2,7 @@ import { type AppState } from './state';
 
 /**
  * A collection of all the UI elements the manager needs to interact with.
- * This provides a single, typed object for easy access.
+ * This provides a single, typed object.
  */
 export interface UIElements {
   ronText: HTMLTextAreaElement;
@@ -10,6 +10,7 @@ export interface UIElements {
   clearButton: HTMLButtonElement;
   haltButton: HTMLButtonElement;
   audioOutput: HTMLAudioElement;
+  progressBar: HTMLProgressElement;
   statusReport: HTMLParagraphElement;
 }
 
@@ -21,7 +22,7 @@ export interface UIElements {
  * @param state The current application state to render.
  */
 export function renderUI(elements: UIElements, state: AppState): void {
-  const { audioLifecycle, inputLifecycle, errorMessage } = state;
+  const { audioLifecycle, inputLifecycle, errorMessage, processingProgress, processingTotal } = state;
 
   // --- Button State ---
 
@@ -37,14 +38,22 @@ export function renderUI(elements: UIElements, state: AppState): void {
   // The 'Clear' button is enabled whenever there is text in the textarea.
   elements.clearButton.disabled = elements.ronText.value.trim().length === 0;
 
-  // --- Visibility ---
+  // --- Audio Player ---
 
   // The audio player is only visible when audio is ready to be played or is currently playing/paused.
   const isAudioVisible =
     audioLifecycle === 'readyToPlay' ||
     audioLifecycle === 'playing' ||
     audioLifecycle === 'paused';
-  elements.audioOutput.style.display = isAudioVisible ? 'block' : 'none';
+  elements.audioOutput.style.opacity = isAudioVisible ? '1' : '0.4';
+
+  // --- Progress Bar ---
+  const isProcessing = audioLifecycle === 'processing';
+  elements.progressBar.style.opacity = isProcessing ? '1' : '0';
+  if (isProcessing) {
+    elements.progressBar.max = processingTotal + 1;
+    elements.progressBar.value = processingProgress + 1;
+  }
 
   // --- Status Message ---
 
@@ -60,7 +69,7 @@ export function renderUI(elements: UIElements, state: AppState): void {
           : 'Please enter text to be read aloud.';
       break;
     case 'processing':
-      elements.statusReport.textContent = 'Processing...';
+      elements.statusReport.textContent = `Processing chunk ${processingProgress + 1} of ${processingTotal}...`;
       break;
     case 'readyToPlay':
       elements.statusReport.textContent = 'Please press the play button on the audio player.';
@@ -72,7 +81,8 @@ export function renderUI(elements: UIElements, state: AppState): void {
       elements.statusReport.textContent =
         inputLifecycle === 'hasRawText'
           ? 'Playback paused. Ready to process new text.'
-          : 'Playback paused.'; // Default message if no new text
+          : 'Playback paused.';
+      // Default message if no new text
       break;
     case 'error':
       elements.statusReport.textContent = errorMessage || 'An unknown error occurred.';
