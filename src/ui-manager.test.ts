@@ -13,12 +13,14 @@ const dom = new JSDOM(`
         <h1>Ron Reade</h1>
         <p><label for="ron_text">Enter text:</label></p>
         <textarea name="ron_text" id="ron_text" rows="20" cols="33" placeholder="Enter text here"></textarea>
-        <button id="process_text_button" type="button" disabled>Read Aloud</button>
-        <button id="clear_button" type="button" disabled>Clear Text</button>
-        <button id="halt_button" type="button" disabled>Halt Processing</button>
-        <progress id="progress_bar" style="display: none; width: 100%;"></progress>
+        <div class="button-group">
+          <button id="process_text_button" type="button" disabled>Read Aloud</button>
+          <button id="clear_button" type="button" disabled>Clear Text</button>
+          <button id="halt_button" type="button" disabled>Halt Processing</button>
+        </div>
         <audio id="audio_output" controls></audio>
         <p id="status_report">Downloading artificial neural network...</p>
+        <progress id="progress_bar" width: 100%;"></progress>
       </main>
     </body>
   </html>

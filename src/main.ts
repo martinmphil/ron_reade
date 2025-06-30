@@ -20,16 +20,18 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <p><label for="ron_text">Enter text:</label></p>
   <textarea name="ron_text" id="ron_text" rows="20" cols="33"
     placeholder="Enter text here"></textarea>
-  <button id="process_text_button" type="button" disabled>Read Aloud</button>
-  <button id="clear_button" type="button" disabled>Clear Text</button>
-  <button id="halt_button" type="button" disabled>Halt Processing</button>
+  <div class="button-group">
+    <button id="process_text_button" type="button" disabled>Read Aloud</button>
+    <button id="clear_button" type="button" disabled>Clear Text</button>
+    <button id="halt_button" type="button" disabled>Halt Processing</button>
+  </div>
   <audio id="audio_output" controls
     style="opacity: 0.4; transition: opacity 0.3s ease-in-out;">
   </audio>
+  <p id="status_report">Downloading artificial neural network...</p>
   <progress id="progress_bar" max="100" value="0"
     style="opacity: 0; transition: opacity 0.3s ease-in-out; width: 100%;">
   </progress>
-  <p id="status_report">Downloading artificial neural network...</p>
 </main>
 
 <footer>
@@ -70,6 +72,7 @@ function main() {
     statusReport: document.getElementById('status_report') as HTMLParagraphElement,
   };
 
+  // dispatch function is later passed to event listeners and render-UI fn
   const dispatch = (action: Action) => {
     const newState = stateReducer(store.state, action);
     if (newState !== store.state) {
@@ -79,10 +82,17 @@ function main() {
   };
 
   setupEventListeners(elements, dispatch);
+
+  // First render occurs with the initial state
   renderUI(elements, store.state);
 
   initializeModel(dispatch);
 }
+
+/**
+ * Note setupEventListeners function depends on runTextProcessing function 
+ * and hence they must share the same scope. 
+ */
 
 /**
  * Attach all necessary DOM event listeners to the UI elements.
@@ -207,7 +217,6 @@ async function runTextProcessing(
     dispatch({ type: 'PROCESSING_FAILURE', payload: (error as Error).message });
 
     // Retry logic
-
     if (store.state.audioLifecycle as 'processing' | 'idle' | 'paused' === 'processing') {
       setTimeout(() => runTextProcessing(dispatch, elements, text), 2000 * store.state.processingRetryCount);
     }
