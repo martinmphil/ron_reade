@@ -1,221 +1,163 @@
-/* --- Basic Reset & Global Styles (Mobile First) --- */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  /* Include padding and border in element's total width/height */
-  margin: 0;
-  padding: 0;
+:root {
+  --background-color: #1a1b1e;
+  --text-color-light: #f0f1f2;
+  --text-color-dark: #1a1b1e;
+  --primary-color: #007aff;
+  --secondary-color: #4a4e56;
+  --border-color: #3a3e44;
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  --border-radius: 0.5rem;
 }
 
 html {
-  font-size: 16px;
-  /* Base font size */
+  font-size: 100%;
 }
 
 body {
-  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  /* Modern, readable font stack */
-  line-height: 1.6;
-  /* Good readability */
-  color: #333;
-  /* Dark grey for text */
-  background-color: #f4f7f6;
-  /* Light background for a soft feel */
-  margin: 0 auto;
-  /* Centre content on larger screens if not using max-width on body */
+  margin: 0;
   padding: 1rem;
-  /* Overall padding around the content */
-  max-width: 900px;
-  /* Limit content width on very large screens */
+  font-family: var(--font-family);
+  background-color: var(--background-color);
+  color: var(--text-color-light);
+  line-height: 1.6;
 }
 
-/* --- Typography --- */
-h1,
-h2 {
-  color: #2c3e50;
-  /* Darker blue-grey for headings */
-  margin-bottom: 0.8em;
-  /* Spacing below headings */
-  line-height: 1.2;
+main {
+  display: flex;
+  flex-direction: column;
+  max-width: 40rem;
+  margin: 2rem auto;
+}
+
+header,
+footer {
+  text-align: center;
+  max-width: 40rem;
+  margin: 2rem auto;
+  color: var(--secondary-color);
+}
+
+footer h2 {
+  margin-top: 3rem;
 }
 
 h1 {
-  font-size: 2.2rem;
-  /* Larger for main title */
+  font-size: 2.25rem;
+  margin-bottom: 0;
   text-align: center;
-  /* Centre the main title */
-  margin-top: 1rem;
 }
 
-h2 {
-  font-size: 1.6rem;
-}
-
-p {
-  margin-bottom: 1em;
-  /* Spacing between paragraphs */
+label {
+  font-weight: bold;
 }
 
 a {
-  color: #007bff;
-  /* Standard blue for links */
+  color: var(--primary-color);
   text-decoration: none;
-  /* No underline by default */
 }
 
 a:hover {
   text-decoration: underline;
-  /* Underline on hover for interactivity */
-}
-
-/* --- Header & Footer --- */
-header,
-footer {
-  text-align: center;
-  padding: 1rem 0;
-  color: #666;
-  /* Lighter grey for header/footer text */
-}
-
-header p {
-  font-size: 0.9rem;
-  margin-bottom: 0.5rem;
-  /* Less space below header paragraph */
-}
-
-footer {
-  margin-top: 2rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid #e0e0e0;
-  /* Subtle line to separate footer */
-  font-size: 0.9rem;
-}
-
-/* --- Main Content Layout & Elements --- */
-main {
-  background-color: #ffffff;
-  /* White background for main content area */
-  padding: 1.5rem;
-  border-radius: 8px;
-  /* Slightly rounded corners for a softer look */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  /* Subtle shadow for depth */
-  margin-bottom: 2rem;
-  /* Space below main content */
-}
-
-/* Form Elements */
-label {
-  display: block;
-  /* Make label take full width for better spacing */
-  margin-bottom: 0.5rem;
-  font-weight: bold;
-  color: #555;
-}
-
-textarea {
-  width: 100%;
-  /* Full width of its container */
-  padding: 0.8rem;
-  margin-bottom: 1rem;
-  /* Space below text-area */
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 1rem;
-  font-family: inherit;
-  /* Inherit font from body for consistency */
-  resize: vertical;
-  /* Allow vertical resizing only */
-  min-height: 150px;
-  /* Ensure a decent minimum height for the text area */
-}
-
-button {
-  display: block;
-  /* Each button on its own line for mobile */
-  width: 100%;
-  /* Full width for mobile */
-  padding: 0.8rem 1.2rem;
-  margin-bottom: 0.8rem;
-  /* Space between buttons */
-  border: none;
-  border-radius: 4px;
-  background-color: #28a745;
-  /* Green for primary action */
-  color: white;
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  /* Smooth transition on hover */
-}
-
-button:hover {
-  background-color: #218838;
-  /* Darker green on hover */
-}
-
-button[disabled] {
-  opacity: 0.4;
-  /* Grey for disabled buttons */
-  cursor: not-allowed;
-}
-
-#clear_button,
-#halt_button {
-  background-color: #6c757d;
-  /* Grey for secondary action */
-}
-
-#clear_button:hover,
-#halt_button:hover {
-  background-color: #5a6268;
-}
-
-audio {
-  width: 100%;
-  /* Full width audio player */
-  margin-top: 1.5rem;
-  /* Space above the audio player */
-  margin-bottom: 1rem;
-  /* Space below the audio player */
 }
 
 #status_report {
   text-align: center;
-  color: black;
+  min-height: 1.6rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+}
+
+#ron_text {
+  width: 100%;
+  background-color: #ffffff;
+  color: var(--text-color-dark);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 0.75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease-in-out;
   margin-top: 1rem;
 }
 
-/* --- Desktop / Tablet Adjustments (using min-width media query) --- */
-@media (min-width: 768px) {
-  h1 {
-    font-size: 2.8rem;
-  }
+#ron_text:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.3);
+}
 
-  h2 {
-    font-size: 1.8rem;
-  }
 
-  button {
-    display: inline-block;
-    /* Buttons side-by-side on larger screens */
-    width: auto;
-    /* Auto width */
-    margin-right: 0.8rem;
-    /* Space between buttons */
-    margin-bottom: 0;
-    /* Remove bottom margin if side-by-side */
-  }
+.button-group {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
 
-  button:last-of-type {
-    margin-right: 0;
-    /* No right margin for the last button */
-  }
+button {
+  padding: 0.75rem 1.25rem;
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: opacity 0.3s ease-in-out, background-color 0.2s ease, filter 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  margin: 0.4rem;
+}
 
-  /* Adjust padding for main section on larger screens */
-  main {
-    padding: 2.5rem;
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+#process_text_button {
+  background-color: var(--primary-color);
+  color: var(--text-color-light);
+}
+
+#process_text_button:not(:disabled):hover {
+  filter: brightness(1.15);
+}
+
+#clear_button {
+  background-color: var(--secondary-color);
+  color: var(--text-color-light);
+}
+
+#clear_button:not(:disabled):hover {
+  filter: brightness(1.15);
+}
+
+#halt_button {
+  background-color: transparent;
+  color: var(--secondary-color);
+  border: 1px solid var(--secondary-color);
+  font-weight: normal;
+}
+
+#halt_button:not(:disabled):hover {
+  background-color: var(--secondary-color);
+  color: var(--text-color-light);
+}
+
+#audio_output {
+  width: 100%;
+  margin-top: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+}
+
+#progress_bar {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+
+/* --- Desktop --- */
+@media (min-width: 40rem) {
+
+  #halt_button {
+    margin-left: auto;
   }
 }
