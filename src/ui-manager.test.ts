@@ -130,7 +130,7 @@ describe('UI Manager: renderUI', () => {
   describe('Error State', () => {
     it('should display an error message and disable controls in the error state', () => {
       const elements = getUIElements();
-      const errorMessage = 'Something went terribly wrong.';
+      const errorMessage = 'We encountered a fault.';
       const state: AppState = { ...initialState, audioLifecycle: 'error', errorMessage: errorMessage };
       renderUI(elements, state);
 

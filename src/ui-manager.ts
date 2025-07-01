@@ -40,12 +40,12 @@ export function renderUI(elements: UIElements, state: AppState): void {
 
   // --- Audio Player ---
 
-  // The audio player is only visible when audio is ready to be played or is currently playing/paused.
-  const isAudioVisible =
+  // The audio player is only opaque when audio is ready to be played or is currently playing/paused.
+  const isAudioOpaque =
     audioLifecycle === 'readyToPlay' ||
     audioLifecycle === 'playing' ||
     audioLifecycle === 'paused';
-  elements.audioOutput.style.opacity = isAudioVisible ? '1' : '0.4';
+  elements.audioOutput.style.opacity = isAudioOpaque ? '1' : '0.4';
 
   // --- Progress Bar ---
   const isProcessing = audioLifecycle === 'processing';
