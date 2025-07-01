@@ -1,61 +1,25 @@
 import './style.css'
+import { initialView } from './initial-view';
 import { initialState } from './state';
 import { stateReducer, type Action } from './state-reducer';
 import { renderUI, type UIElements } from './ui-manager';
-import { loadModel, processTextToAudio } from './tts-service';
-import { chunkText } from './modules/text-processing';
+import { loadModel, processTextToAudio } from './voicing-service';
+import { chunkText } from './chunk-text';
 import { encodeWav } from './wav-encoder';
 
-// A constant for the audio sample rate, as defined by the TTS model.
+// A constant for the audio sample rate, as defined by the text-to-speech model.
 const SAMPLE_RATE = 16000;
 
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-<header>
-  <p>Text-To-Speech via <a
-      href="https://huggingface.co/docs/transformers.js/index">Transformers.js</a></p>
-</header>
-
-<main>
-  <h1>Ron Reade</h1>
-  <p><label for="ron_text">Enter text:</label></p>
-  <textarea name="ron_text" id="ron_text" rows="20" cols="33"
-    placeholder="Enter text here"></textarea>
-  <div class="button-group">
-    <button id="process_text_button" type="button" disabled>Read Aloud</button>
-    <button id="clear_button" type="button" disabled>Clear Text</button>
-    <button id="halt_button" type="button" disabled>Halt Processing</button>
-  </div>
-  <audio id="audio_output" controls
-    style="opacity: 0.4; transition: opacity 0.3s ease-in-out;">
-  </audio>
-  <p id="status_report">Downloading artificial neural network...</p>
-  <progress id="progress_bar" max="100" value="0"
-    style="opacity: 0; transition: opacity 0.3s ease-in-out; width: 100%;">
-  </progress>
-</main>
-
-<footer>
-  <h2>How it works</h2>
-  <p>
-    Ron Reade uses advanced machine-learning running right in your browser to convert text
-    into natural-sounding speech.
-  </p>
-  <p>
-    Your text stays private on your device.
-  </p>
-  <p><a href="https://github.com/martinmphil/ron_reade" target="_blank"
-      rel="noopener noreferrer">Project on GitHub</a></p>
-</footer>
-`
+document.querySelector<HTMLDivElement>('#app')!.innerHTML = initialView;
 
 // --- Application Store ---
 const store = {
   state: initialState,
-  // A flag to signal the processing loop to stop.
-  haltSignal: false,
+  // dummy placeholder abort-controller to define property type
+  synthesizerAbortController: new AbortController(),
 };
 
-// --- App Initialization ---
+// --- Initialise App ---
 document.addEventListener('DOMContentLoaded', main);
 
 /**
@@ -113,8 +77,7 @@ function setupEventListeners(elements: UIElements, dispatch: (action: Action) =>
   });
 
   elements.haltButton.addEventListener('click', () => {
-    // Signal the processing loop to stop.
-    store.haltSignal = true;
+    store.synthesizerAbortController.abort();
     dispatch({ type: 'USER_HALTED_PROCESSING' });
   });
 
@@ -165,8 +128,9 @@ async function runTextProcessing(
     return;
   }
 
-  // Reset the halt signal for the new job.
-  store.haltSignal = false;
+  // Create a new AbortController for this specific processing job.
+  store.synthesizerAbortController = new AbortController();
+  const abortSignal = store.synthesizerAbortController.signal;
 
   let combinedAudio = new Float32Array(0);
 
@@ -181,25 +145,19 @@ async function runTextProcessing(
   });
 
   try {
-    // Iterate through each chunk.
     for (const chunk of textChunks) {
 
-      if (store.haltSignal) {
-        console.log('Processing halted by user.');
-        return;
-      }
-
       // Process the chunk to get audio data.
-      const audioChunk = await processTextToAudio(chunk);
+      const audioChunk = await processTextToAudio(chunk, abortSignal);
 
       // Dispatch progress update after a chunk is successfully processed.
       dispatch({ type: 'PROCESSING_CHUNK_SUCCESS' });
 
       // Concatenate the new audio data.
-      const newCombined = new Float32Array(combinedAudio.length + audioChunk.length);
-      newCombined.set(combinedAudio, 0);
-      newCombined.set(audioChunk, combinedAudio.length);
-      combinedAudio = newCombined;
+      const newCombinedAudio = new Float32Array(combinedAudio.length + audioChunk.length);
+      newCombinedAudio.set(combinedAudio, 0);
+      newCombinedAudio.set(audioChunk, combinedAudio.length);
+      combinedAudio = newCombinedAudio;
     }
 
     // Encode the final buffer to a WAV Blob.
@@ -213,13 +171,19 @@ async function runTextProcessing(
     dispatch({ type: 'PROCESSING_SUCCESS' });
 
   } catch (error) {
-    console.error('Failed to process text:', error);
-    dispatch({ type: 'PROCESSING_FAILURE', payload: (error as Error).message });
+    // Check if the error was caused by our own cancellation.
+    if ((error as Error).name === 'AbortError') {
+      console.log('Text-to-speech processing was successfully aborted.');
+    } else {
+      // If it's a different error, handle it as a failure.
+      console.error('Failed to process text:', error);
+      dispatch({ type: 'PROCESSING_FAILURE', payload: (error as Error).message });
 
-    // Retry logic
-    if (store.state.audioLifecycle as 'processing' | 'idle' | 'paused' === 'processing') {
-      setTimeout(() => runTextProcessing(dispatch, elements, text), 2000 * store.state.processingRetryCount);
+      // Retry logic
+      if (store.state.audioLifecycle as 'processing' | 'idle' | 'paused' === 'processing') {
+        setTimeout(() => runTextProcessing(dispatch, elements, text), 2000 * store.state.processingRetryCount);
+      }
     }
-
   }
+
 }
