@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { chunkText } from './text-processing';
+import { chunkText } from './chunk-text';
 
 describe('chunkText', () => {
 
@@ -26,28 +26,28 @@ describe('chunkText', () => {
     expect(chunkText('   ')).toEqual([]);
   });
 
-  it('should split text at the 1000 character limit if no full stop is found', () => {
-    const longText = 'a'.repeat(1001); // 1001 characters
-    const expectedChunks = ['a'.repeat(1000), 'a'.repeat(1)];
+  it('should split text at the 400 character limit if no full stop is found', () => {
+    const longText = 'a'.repeat(401); // 1001 characters
+    const expectedChunks = ['a'.repeat(400), 'a'.repeat(1)];
     expect(chunkText(longText)).toEqual(expectedChunks);
   });
 
-  it('should prioritize splitting by a full stop over the 1000 character limit', () => {
-    const text = 'a'.repeat(500) + '. ' + 'b'.repeat(600);
-    const expectedChunks = ['a'.repeat(500) + '.', 'b'.repeat(600)];
+  it('should prioritize splitting by a full stop over the 400 character limit', () => {
+    const text = 'a'.repeat(200) + '. ' + 'b'.repeat(300);
+    const expectedChunks = ['a'.repeat(200) + '.', 'b'.repeat(300)];
     expect(chunkText(text)).toEqual(expectedChunks);
   });
 
   it('should correctly chunk text with a mix of long sentences and full stops', () => {
-    const part1 = 'a'.repeat(1000); // First chunk
+    const part1 = 'a'.repeat(400); // First chunk
     const part2 = 'b'.repeat(200) + '. '; // Second chunk
-    const part3 = 'c'.repeat(1001); // Third and fourth chunks
+    const part3 = 'c'.repeat(401); // Third and fourth chunks
     const inputText = part1 + part2 + part3;
 
     const expectedChunks = [
-      'a'.repeat(1000),
+      'a'.repeat(400),
       'b'.repeat(200) + '.',
-      'c'.repeat(1000),
+      'c'.repeat(400),
       'c'.repeat(1),
     ];
 

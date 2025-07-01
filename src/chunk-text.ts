@@ -1,4 +1,4 @@
-const MAX_CHUNK_LENGTH = 1000;
+const MAX_CHUNK_LENGTH = 400;
 
 /**
  * Splits a given string into chunks based on specific rules.
