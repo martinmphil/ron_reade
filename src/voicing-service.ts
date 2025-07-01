@@ -21,13 +21,16 @@ export async function loadModel(): Promise<void> {
 
 /**
  * Generates an audio waveform from a given text string using the loaded model.
- *
  * @param text The text to convert to speech.
+ * @param abortSignal The AbortSignal to allow for cancellation.
  * @returns A Float32Array containing the audio waveform data.
  */
-export async function processTextToAudio(text: string): Promise<Float32Array> {
+export async function processTextToAudio(
+  text: string,
+  abortSignal?: AbortSignal
+): Promise<Float32Array> {
   if (!synthesizer) {
-    throw new Error('TTS model is not loaded yet.');
+    throw new Error('Text-to-speech model is not loaded yet.');
   }
 
   // Relative path to the speaker embeddings file
@@ -35,6 +38,7 @@ export async function processTextToAudio(text: string): Promise<Float32Array> {
 
   const output = await synthesizer(text, {
     speaker_embeddings: speakerEmbeddingsUrl,
+    signal: abortSignal,
   });
 
   return output.audio;
