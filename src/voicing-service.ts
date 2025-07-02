@@ -33,8 +33,8 @@ export async function processTextToAudio(
     throw new Error('Text-to-speech model is not loaded yet.');
   }
 
-  // Relative path to the speaker embeddings file
-  const speakerEmbeddingsUrl = './speaker_embeddings.bin';
+  // Path to the speaker embeddings file in /public directory 
+  const speakerEmbeddingsUrl = '/speaker_embeddings.bin';
 
   const output = await synthesizer(text, {
     speaker_embeddings: speakerEmbeddingsUrl,
