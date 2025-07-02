@@ -64,7 +64,7 @@ describe('UI Manager: renderUI', () => {
     it('should enable the process button when idle and text is present', () => {
       const elements = getUIElements();
       elements.ronText.value = 'Some new text';
-      const state: AppState = { ...initialState, audioLifecycle: 'idle', inputLifecycle: 'hasRawText' };
+      const state: AppState = { ...initialState, audioLifecycle: 'idle' };
       renderUI(elements, state);
 
       expect(elements.processTextButton.disabled).toBe(false);
@@ -73,7 +73,7 @@ describe('UI Manager: renderUI', () => {
 
     it('should disable the process button when idle and text is empty', () => {
       const elements = getUIElements();
-      const state: AppState = { ...initialState, audioLifecycle: 'idle', inputLifecycle: 'empty' };
+      const state: AppState = { ...initialState, audioLifecycle: 'idle' };
       renderUI(elements, state);
 
       expect(elements.processTextButton.disabled).toBe(true);
@@ -84,7 +84,7 @@ describe('UI Manager: renderUI', () => {
   describe('Processing State', () => {
     it('should show the correct UI when processing text', () => {
       const elements = getUIElements();
-      const state: AppState = { ...initialState, audioLifecycle: 'processing', inputLifecycle: 'hasSubmittedText' };
+      const state: AppState = { ...initialState, audioLifecycle: 'processing' };
       renderUI(elements, state);
 
       expect(elements.processTextButton.disabled).toBe(true);
@@ -99,7 +99,7 @@ describe('UI Manager: renderUI', () => {
   describe('Playback States', () => {
     it('should show the audio player when ready to play', () => {
       const elements = getUIElements();
-      const state: AppState = { ...initialState, audioLifecycle: 'readyToPlay', inputLifecycle: 'hasSubmittedText' };
+      const state: AppState = { ...initialState, audioLifecycle: 'readyToPlay' };
       renderUI(elements, state);
 
       expect(elements.processTextButton.disabled).toBe(true);
@@ -109,7 +109,7 @@ describe('UI Manager: renderUI', () => {
 
     it('should update the UI correctly when playing', () => {
       const elements = getUIElements();
-      const state: AppState = { ...initialState, audioLifecycle: 'playing', inputLifecycle: 'hasSubmittedText' };
+      const state: AppState = { ...initialState, audioLifecycle: 'playing' };
       renderUI(elements, state);
 
       expect(elements.processTextButton.disabled).toBe(true);
@@ -119,7 +119,7 @@ describe('UI Manager: renderUI', () => {
     it('should enable the process button if paused and new text is entered', () => {
       const elements = getUIElements();
       elements.ronText.value = 'A new thought occurred to me.';
-      const state: AppState = { ...initialState, audioLifecycle: 'paused', inputLifecycle: 'hasRawText' };
+      const state: AppState = { ...initialState, audioLifecycle: 'paused' };
       renderUI(elements, state);
 
       expect(elements.processTextButton.disabled).toBe(false); // The key check
@@ -192,7 +192,7 @@ describe('UI Manager: Full Interaction Loop', () => {
       elements.ronText.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
 
       // Assertions
-      expect(state.inputLifecycle).toBe('hasRawText');
+      
       expect(elements.processTextButton.disabled).toBe(false);
       expect(elements.clearButton.disabled).toBe(false);
     });
@@ -208,7 +208,7 @@ describe('UI Manager: Full Interaction Loop', () => {
       elements.clearButton.click();
 
       // Assertions
-      expect(state.inputLifecycle).toBe('empty');
+      
       expect(elements.ronText.value).toBe('');
       expect(elements.processTextButton.disabled).toBe(true);
       expect(elements.clearButton.disabled).toBe(true);
@@ -228,7 +228,7 @@ describe('UI Manager: Full Interaction Loop', () => {
 
       // Assertions
       expect(state.audioLifecycle).toBe('processing');
-      expect(state.inputLifecycle).toBe('hasSubmittedText');
+      
       expect(elements.haltButton.disabled).toBe(false);
       expect(elements.statusReport.textContent?.toLowerCase()).toContain('processing');
     });

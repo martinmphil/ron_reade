@@ -1,45 +1,55 @@
-import { pipeline, env } from '@huggingface/transformers';
-
-// A reference to the loaded synthesizer pipeline.
-let synthesizer: any = null;
+let worker: Worker | null = null;
 
 /**
- * Initializes the Transformers.js environment and loads the required
- * text-to-speech model.
+ * Initializes the voicing service by creating a new web worker.
  */
-export async function loadModel(): Promise<void> {
-  // Configure the environment to use CDN models only.
-  env.allowLocalModels = false;
-  env.allowRemoteModels = true;
-  env.useBrowserCache = true;
-
-  // Load the text-to-speech pipeline.
-  synthesizer = await pipeline('text-to-speech', 'Xenova/speecht5_tts',
-    { dtype: 'fp32' }
-  );
+export function initializeVoicingService(): void {
+  if (worker) {
+    worker.terminate();
+  }
+  worker = new Worker(new URL('./voicing.worker.ts', import.meta.url), { type: 'module' });
 }
 
 /**
- * Generates an audio waveform from a given text string using the loaded model.
+ * Loads the text-to-speech model in the web worker.
+ */
+export function loadModel(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (!worker) {
+      return reject('Voicing service not initialized.');
+    }
+
+    worker.onmessage = (event) => {
+      if (event.data.type === 'modelLoadSuccess') {
+        resolve();
+      } else if (event.data.type === 'processingFailure') {
+        reject(event.data.payload);
+      }
+    };
+
+    worker.postMessage({ type: 'loadModel' });
+  });
+}
+
+/**
+ * Generates an audio waveform from a given text string using the web worker.
  * @param text The text to convert to speech.
- * @param abortSignal The AbortSignal to allow for cancellation.
  * @returns A Float32Array containing the audio waveform data.
  */
-export async function processTextToAudio(
-  text: string,
-  abortSignal?: AbortSignal
-): Promise<Float32Array> {
-  if (!synthesizer) {
-    throw new Error('Text-to-speech model is not loaded yet.');
-  }
+export function processTextToAudio(text: string): Promise<Float32Array> {
+  return new Promise((resolve, reject) => {
+    if (!worker) {
+      return reject('Voicing service not initialized.');
+    }
 
-  // Path to the speaker embeddings file in /public directory 
-  const speakerEmbeddingsUrl = '/speaker_embeddings.bin';
+    worker.onmessage = (event) => {
+      if (event.data.type === 'processingSuccess') {
+        resolve(event.data.payload);
+      } else if (event.data.type === 'processingFailure') {
+        reject(event.data.payload);
+      }
+    };
 
-  const output = await synthesizer(text, {
-    speaker_embeddings: speakerEmbeddingsUrl,
-    signal: abortSignal,
+    worker.postMessage({ type: 'processText', payload: text });
   });
-
-  return output.audio;
 }

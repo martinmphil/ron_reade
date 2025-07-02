@@ -3,7 +3,7 @@ import { initialView } from './initial-view';
 import { initialState } from './state';
 import { stateReducer, type Action } from './state-reducer';
 import { renderUI, type UIElements } from './ui-manager';
-import { loadModel, processTextToAudio } from './voicing-service';
+import { initializeVoicingService, loadModel, processTextToAudio } from './voicing-service';
 import { chunkText } from './chunk-text';
 import { encodeWav } from './wav-encoder';
 
@@ -15,12 +15,16 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = initialView;
 // --- Application Store ---
 const store = {
   state: initialState,
-  // dummy placeholder abort-controller to define property type
-  synthesizerAbortController: new AbortController(),
 };
 
 // --- Initialise App ---
 document.addEventListener('DOMContentLoaded', main);
+window.addEventListener('pageshow', (event) => {
+  // Re-initialize the app if the page is loaded from the back-forward cache
+  if (event.persisted) {
+    main();
+  }
+});
 
 /**
  * The main entry point for the application.
@@ -77,8 +81,12 @@ function setupEventListeners(elements: UIElements, dispatch: (action: Action) =>
   });
 
   elements.haltButton.addEventListener('click', () => {
-    store.synthesizerAbortController.abort();
+    // Terminate the current worker and create a new one.
+    initializeVoicingService();
+    // Dispatch an action to put the app into the model loading state.
     dispatch({ type: 'USER_HALTED_PROCESSING' });
+    // Reload the model in the new worker.
+    initializeModel(dispatch);
   });
 
   elements.audioOutput.addEventListener('pause', () => {
@@ -98,6 +106,7 @@ function setupEventListeners(elements: UIElements, dispatch: (action: Action) =>
  * Manages the process of loading the model with retry logic.
  */
 async function initializeModel(dispatch: (action: Action) => void) {
+  initializeVoicingService();
   try {
     await loadModel();
     dispatch({ type: 'MODEL_LOAD_SUCCESS' });
@@ -122,15 +131,12 @@ async function runTextProcessing(
 ) {
 
   if (
-    (store.state.audioLifecycle !== 'idle' && store.state.audioLifecycle !== 'paused') ||
-    store.state.inputLifecycle !== 'hasRawText'
+    (store.state.audioLifecycle !== 'idle' &&
+      store.state.audioLifecycle !== 'paused' &&
+      store.state.audioLifecycle !== 'readyToPlay')
   ) {
     return;
   }
-
-  // Create a new AbortController for this specific processing job.
-  store.synthesizerAbortController = new AbortController();
-  const abortSignal = store.synthesizerAbortController.signal;
 
   let combinedAudio = new Float32Array(0);
 
@@ -148,7 +154,7 @@ async function runTextProcessing(
     for (const chunk of textChunks) {
 
       // Process the chunk to get audio data.
-      const audioChunk = await processTextToAudio(chunk, abortSignal);
+      const audioChunk = await processTextToAudio(chunk);
 
       // Dispatch progress update after a chunk is successfully processed.
       dispatch({ type: 'PROCESSING_CHUNK_SUCCESS' });
@@ -168,21 +174,15 @@ async function runTextProcessing(
     elements.audioOutput.src = audioUrl;
 
     // Signal successful processing
-    dispatch({ type: 'PROCESSING_SUCCESS' });
+    dispatch({ type: 'PROCESSING_SUCCESS', payload: text });
 
   } catch (error) {
-    // Check if the error was caused by our own cancellation.
-    if ((error as Error).name === 'AbortError') {
-      console.log('Text-to-speech processing was successfully aborted.');
-    } else {
-      // If it's a different error, handle it as a failure.
-      console.error('Failed to process text:', error);
-      dispatch({ type: 'PROCESSING_FAILURE', payload: (error as Error).message });
+    console.error('Failed to process text:', error);
+    dispatch({ type: 'PROCESSING_FAILURE', payload: (error as Error).message });
 
-      // Retry logic
-      if (store.state.audioLifecycle as 'processing' | 'idle' | 'paused' === 'processing') {
-        setTimeout(() => runTextProcessing(dispatch, elements, text), 2000 * store.state.processingRetryCount);
-      }
+    // Retry logic
+    if (store.state.audioLifecycle as 'processing' | 'idle' | 'paused' === 'processing') {
+      setTimeout(() => runTextProcessing(dispatch, elements, text), 2000 * store.state.processingRetryCount);
     }
   }
 

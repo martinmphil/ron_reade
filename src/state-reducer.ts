@@ -6,11 +6,10 @@ const MAX_RETRIES = 7;
 // Define all possible actions as a discriminated union type.
 // This allows TypeScript to provide strong typing within the reducer.
 
-type UserInputAction = { type: 'USER_INPUT_TEXT' };
-type UserClearedTextAction = { type: 'USER_CLEARED_TEXT' };
+
 type ModelLoadSuccessAction = { type: 'MODEL_LOAD_SUCCESS' };
 type ModelLoadFailureAction = { type: 'MODEL_LOAD_FAILURE' };
-type ProcessingSuccessAction = { type: 'PROCESSING_SUCCESS' };
+type ProcessingSuccessAction = { type: 'PROCESSING_SUCCESS'; payload: string };
 type UserHaltedProcessingAction = { type: 'USER_HALTED_PROCESSING' };
 type ProcessingFailureAction = { type: 'PROCESSING_FAILURE'; payload: string };
 type UserPlayedAudioAction = { type: 'USER_PLAYED_AUDIO' };
@@ -18,11 +17,11 @@ type UserPausedAudioAction = { type: 'USER_PAUSED_AUDIO' };
 type AudioPlaybackEndedAction = { type: 'AUDIO_PLAYBACK_ENDED' };
 type ProcessTextSubmittedAction = { type: 'PROCESS_TEXT_SUBMITTED', payload: { totalChunks: number } };
 type ProcessingChunkSuccessAction = { type: 'PROCESSING_CHUNK_SUCCESS' };
+type UserInputTextAction = { type: 'USER_INPUT_TEXT' };
+type UserClearedTextAction = { type: 'USER_CLEARED_TEXT' };
 
 
 export type Action =
-  | UserInputAction
-  | UserClearedTextAction
   | ModelLoadSuccessAction
   | ModelLoadFailureAction
   | ProcessingSuccessAction
@@ -32,7 +31,9 @@ export type Action =
   | UserPausedAudioAction
   | AudioPlaybackEndedAction
   | ProcessTextSubmittedAction
-  | ProcessingChunkSuccessAction;
+  | ProcessingChunkSuccessAction
+  | UserInputTextAction
+  | UserClearedTextAction;
 
 
 /**
@@ -45,29 +46,26 @@ export type Action =
  */
 export function stateReducer(state: AppState, action: Action): AppState {
   switch (action.type) {
+
+
     // --- Input Lifecycle Cases ---
     case 'USER_INPUT_TEXT':
       return {
         ...state,
-        inputLifecycle: 'hasRawText',
+        audioLifecycle: 'idle',
       };
 
     case 'USER_CLEARED_TEXT':
-      return {
-        ...state,
-        inputLifecycle: 'empty',
-      };
+      return state;
 
     // --- Combined Logic Case ---
     case 'PROCESS_TEXT_SUBMITTED':
       if (
-        (state.audioLifecycle === 'idle' || state.audioLifecycle === 'paused') &&
-        state.inputLifecycle === 'hasRawText'
+        (state.audioLifecycle === 'idle' || state.audioLifecycle === 'paused' || state.audioLifecycle === 'readyToPlay')
       ) {
         return {
           ...state,
           audioLifecycle: 'processing',
-          inputLifecycle: 'hasSubmittedText',
           processingRetryCount: 0,
           errorMessage: null,
           processingProgress: 0,
@@ -88,7 +86,7 @@ export function stateReducer(state: AppState, action: Action): AppState {
       return {
         ...state,
         audioLifecycle: 'idle',
-        modelLoadRetryCount: 0, // Reset on success
+        modelLoadRetryCount: 0,
       };
 
     case 'MODEL_LOAD_FAILURE':
@@ -109,7 +107,8 @@ export function stateReducer(state: AppState, action: Action): AppState {
       return {
         ...state,
         audioLifecycle: 'readyToPlay',
-        processingRetryCount: 0, // Reset on success
+        processingRetryCount: 0,
+        lastProcessedText: action.payload,
       };
 
     case 'PROCESSING_FAILURE':
@@ -129,11 +128,11 @@ export function stateReducer(state: AppState, action: Action): AppState {
       };
 
     case 'USER_HALTED_PROCESSING':
-      // Return to 'idle' and allow the user to resubmit the same text.
+      // When processing is halted, the worker is terminated and a new one is created.
+      // Reload model in this new worker.
       return {
         ...state,
-        audioLifecycle: 'idle',
-        inputLifecycle: 'hasRawText',
+        audioLifecycle: 'modelLoading',
       };
 
     case 'USER_PLAYED_AUDIO':

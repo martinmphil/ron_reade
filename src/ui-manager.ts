@@ -22,15 +22,21 @@ export interface UIElements {
  * @param state The current application state to render.
  */
 export function renderUI(elements: UIElements, state: AppState): void {
-  const { audioLifecycle, inputLifecycle, errorMessage, processingProgress, processingTotal } = state;
+  const { audioLifecycle, errorMessage, processingProgress, processingTotal, lastProcessedText } = state;
 
   // --- Button State ---
 
-  // The 'Process' button is enabled only when the app is idle or paused, AND there is new text.
-  elements.processTextButton.disabled = !(
-    (audioLifecycle === 'idle' || audioLifecycle === 'paused') &&
-    inputLifecycle === 'hasRawText'
+  // The 'Process' button is enabled only when there is text and the app is not in a critical state.
+  const currentText = elements.ronText.value.trim();
+  const hasText = currentText.length > 0;
+  const textHasChanged = currentText !== lastProcessedText;
+
+  const isProcessButtonEnabled = (
+    hasText &&
+    textHasChanged &&
+    (audioLifecycle === 'idle' || audioLifecycle === 'paused' || audioLifecycle === 'readyToPlay')
   );
+  elements.processTextButton.disabled = !isProcessButtonEnabled;
 
   // The 'Halt' button is enabled only when processing is active.
   elements.haltButton.disabled = audioLifecycle !== 'processing';
@@ -64,7 +70,7 @@ export function renderUI(elements: UIElements, state: AppState): void {
       break;
     case 'idle':
       elements.statusReport.textContent =
-        inputLifecycle === 'hasRawText'
+        elements.ronText.value.trim().length > 0
           ? 'Ready to convert your text into speech.'
           : 'Please enter text to be read aloud.';
       break;
@@ -79,7 +85,7 @@ export function renderUI(elements: UIElements, state: AppState): void {
       break;
     case 'paused':
       elements.statusReport.textContent =
-        inputLifecycle === 'hasRawText'
+        elements.ronText.value.trim().length > 0
           ? 'Playback paused. Ready to process new text.'
           : 'Playback paused.';
       // Default message if no new text
