@@ -32,7 +32,7 @@ async function processTextToAudio(
   }
 
   // Path to the speaker embeddings file in /public directory 
-  const speakerEmbeddingsUrl = '/speaker_embeddings.bin';
+  const speakerEmbeddingsUrl = `${import.meta.env.BASE_URL}speaker_embeddings.bin`;
 
   const output = await synthesizer(text, {
     speaker_embeddings: speakerEmbeddingsUrl,
