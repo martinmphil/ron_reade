@@ -14,7 +14,7 @@ const dom = new JSDOM(`
         <p><label for="ron_text">Enter text:</label></p>
         <textarea name="ron_text" id="ron_text" rows="20" cols="33" placeholder="Enter text here"></textarea>
         <div class="button-group">
-          <button id="process_text_button" type="button" disabled>Read Aloud</button>
+          <button id="process_text_button" type="button" disabled>Create Speech</button>
           <button id="clear_button" type="button" disabled>Clear Text</button>
           <button id="halt_button" type="button" disabled>Halt Processing</button>
         </div>
@@ -192,7 +192,7 @@ describe('UI Manager: Full Interaction Loop', () => {
       elements.ronText.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
 
       // Assertions
-      
+
       expect(elements.processTextButton.disabled).toBe(false);
       expect(elements.clearButton.disabled).toBe(false);
     });
@@ -208,7 +208,7 @@ describe('UI Manager: Full Interaction Loop', () => {
       elements.clearButton.click();
 
       // Assertions
-      
+
       expect(elements.ronText.value).toBe('');
       expect(elements.processTextButton.disabled).toBe(true);
       expect(elements.clearButton.disabled).toBe(true);
@@ -216,7 +216,7 @@ describe('UI Manager: Full Interaction Loop', () => {
   });
 
   describe('Processing Flow', () => {
-    it('should transition UI to "processing" state on "Read Aloud" click', () => {
+    it('should transition UI to "processing" state on "Create Speech" click', () => {
       // Setup
       state.audioLifecycle = 'idle';
       elements.ronText.value = 'Test text';
@@ -228,7 +228,7 @@ describe('UI Manager: Full Interaction Loop', () => {
 
       // Assertions
       expect(state.audioLifecycle).toBe('processing');
-      
+
       expect(elements.haltButton.disabled).toBe(false);
       expect(elements.statusReport.textContent?.toLowerCase()).toContain('processing');
     });
