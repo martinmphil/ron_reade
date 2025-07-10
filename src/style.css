@@ -3,7 +3,7 @@
   --text-color-light: #f0f1f2;
   --text-color-dark: #1a1b1e;
   --primary-color: #007aff;
-  --secondary-color: #4a4e56;
+  --secondary-color: grey;
   --border-color: #3a3e44;
   --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   --border-radius: 0.5rem;
@@ -15,7 +15,6 @@ html {
 
 body {
   margin: 0;
-  padding: 1rem;
   font-family: var(--font-family);
   background-color: var(--background-color);
   color: var(--text-color-light);
@@ -26,10 +25,18 @@ main {
   display: flex;
   flex-direction: column;
   max-width: 40rem;
-  margin: 2rem auto;
+  margin: 0.5rem auto 2rem;
 }
 
-header,
+header {
+  display: flex;
+  flex-direction: column;
+  max-width: 40rem;
+  margin: auto;
+  padding-right: 0.2rem;
+  text-align: right;
+}
+
 footer {
   text-align: center;
   max-width: 40rem;
@@ -42,7 +49,9 @@ footer h2 {
 }
 
 h1 {
-  font-size: 2.25rem;
+  font-size: 1.4rem;
+  font-weight: normal;
+  margin-top: 0;
   margin-bottom: 0;
   text-align: center;
 }
@@ -77,7 +86,7 @@ a:hover {
   font-size: 1rem;
   line-height: 1.5;
   box-sizing: border-box;
-  transition: border-color 0.3s ease-in-out;
+  transition: border-color 0.2s ease-in-out;
   margin-top: 1rem;
 }
 
@@ -95,13 +104,14 @@ a:hover {
 }
 
 button {
+  width: 100%;
   padding: 0.75rem 1.25rem;
   font-size: 1rem;
   font-weight: bold;
   border: none;
   border-radius: var(--border-radius);
   cursor: pointer;
-  transition: opacity 0.3s ease-in-out, background-color 0.2s ease, filter 0.2s ease;
+  transition: opacity 0.2s ease-in-out, background-color 0.2s ease, filter 0.2s ease;
   -webkit-tap-highlight-color: transparent;
   margin: 0.4rem;
 }
@@ -155,7 +165,11 @@ button:disabled {
 
 
 /* --- Desktop --- */
-@media (min-width: 40rem) {
+@media (min-width: 30rem) {
+
+  button {
+    width: auto;
+  }
 
   #halt_button {
     margin-left: auto;
