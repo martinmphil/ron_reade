@@ -8,6 +8,16 @@ Ron Reade uses small machine-learning models from [Xenova](https://github.com/xe
 
 This project employs HTML, CSS, TypeScript, [Vite](https://en.wikipedia.org/wiki/Vite_(software)) and [Vitest](https://vitest.dev/). 
 
+## Scripts
+
+Run unit tests with `npm run test`.
+
+To see this app running in a development server, use `npm run dev`. 
+
+To build for distribution in the `dist` directory, use `npm run build`. 
+
+To preview the distribution `dist` directory, use `npm run build` followed by `npm run preview`. 
+
 ## Audio samples 
 The text-to-speech pipeline creates an audio buffer object (ie audio chunk). 
 This audio chunk object has an `audio` property which holds the audio waveform data in a Float32Array as an audio sample. 
