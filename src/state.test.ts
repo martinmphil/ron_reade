@@ -8,13 +8,14 @@ describe('Application State Machine Reducer', () => {
     it('should have the correct initial state when the app loads', () => {
       const expectedInitialState: AppState = {
         audioLifecycle: 'modelLoading',
-        
+
         modelLoadRetryCount: 0,
         processingRetryCount: 0,
         errorMessage: null,
         processingProgress: 0,
         processingTotal: 0,
-        lastProcessedText: null
+        lastProcessedText: null,
+        loadingDots: 0
       };
       expect(initialState).toEqual(expectedInitialState);
     });
@@ -26,7 +27,7 @@ describe('Application State Machine Reducer', () => {
     });
   });
 
-  
+
 
   describe('Audio Lifecycle Transitions', () => {
     describe('Model Loading', () => {

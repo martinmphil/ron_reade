@@ -17,7 +17,7 @@ export const initialView =
   <audio id="audio_output" controls
     style="opacity: 0.4; transition: opacity 0.2s ease-in-out;">
   </audio>
-  <p id="status_report">Downloading artificial neural network...</p>
+  <p id="status_report">Downloading artificial neural network</p>
   <progress id="progress_bar" max="100" value="0"
     style="opacity: 0; transition: opacity 0.2s ease-in-out; width: 100%;">
   </progress>

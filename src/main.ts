@@ -106,9 +106,14 @@ function setupEventListeners(elements: UIElements, dispatch: (action: Action) =>
  * Manages the process of loading the model with retry logic.
  */
 async function initializeModel(dispatch: (action: Action) => void) {
+  const loadingAnimation = setInterval(() => {
+    dispatch({ type: 'UPDATE_LOADING_DOTS' });
+  }, 1000);
+
   initializeVoicingService();
   try {
     await loadModel();
+    clearInterval(loadingAnimation);
     dispatch({ type: 'MODEL_LOAD_SUCCESS' });
   } catch (error) {
     console.error('Failed to load model:', error);
@@ -117,6 +122,8 @@ async function initializeModel(dispatch: (action: Action) => void) {
     // Check state for retry logic
     if (store.state.audioLifecycle === 'modelLoading') {
       setTimeout(() => initializeModel(dispatch), 2000 * store.state.modelLoadRetryCount);
+    } else {
+      clearInterval(loadingAnimation);
     }
   }
 }

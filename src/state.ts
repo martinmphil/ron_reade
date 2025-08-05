@@ -24,6 +24,7 @@ export interface AppState {
   processingProgress: number;
   processingTotal: number;
   lastProcessedText: string | null;
+  loadingDots: number;
 }
 
 /**
@@ -37,4 +38,5 @@ export const initialState: AppState = {
   processingProgress: 0,
   processingTotal: 0,
   lastProcessedText: null,
+  loadingDots: 0,
 };

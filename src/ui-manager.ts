@@ -15,6 +15,15 @@ export interface UIElements {
 }
 
 /**
+ * Returns a string of dots for the loading animation.
+ * @param count The number of dots to render.
+ * @returns A string of dots.
+ */
+function renderLoadingDots(count: number): string {
+  return '.'.repeat(count);
+}
+
+/**
  * Updates the UI elements on the page to reflect the current application state.
  * This function is the single source of truth for rendering the UI.
  *
@@ -64,9 +73,15 @@ export function renderUI(elements: UIElements, state: AppState): void {
   // --- Status Message ---
 
   // A switch statement to determine the correct status message based on the app state.
+  if (audioLifecycle !== 'modelLoading') {
+    elements.statusReport.classList.remove('loading');
+  }
+
   switch (audioLifecycle) {
     case 'modelLoading':
-      elements.statusReport.textContent = 'Downloading artificial neural network...';
+      elements.statusReport.textContent = 'Downloading artificial neural network';
+      elements.statusReport.classList.add('loading');
+      elements.statusReport.style.setProperty('--loading-dots', `"${renderLoadingDots(state.loadingDots)}"`);
       break;
     case 'idle':
       elements.statusReport.textContent =

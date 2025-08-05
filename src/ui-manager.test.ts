@@ -54,7 +54,7 @@ describe('UI Manager: renderUI', () => {
       const elements = getUIElements();
       renderUI(elements, initialState);
 
-      expect(elements.statusReport.textContent).toBe('Downloading artificial neural network...');
+      expect(elements.statusReport.textContent).toContain('Downloading artificial neural network');
       expect(elements.processTextButton.disabled).toBe(true);
       expect(elements.haltButton.disabled).toBe(true);
       expect(elements.audioOutput.style.opacity).toBe('0.4');

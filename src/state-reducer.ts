@@ -19,6 +19,7 @@ type ProcessTextSubmittedAction = { type: 'PROCESS_TEXT_SUBMITTED', payload: { t
 type ProcessingChunkSuccessAction = { type: 'PROCESSING_CHUNK_SUCCESS' };
 type UserInputTextAction = { type: 'USER_INPUT_TEXT' };
 type UserClearedTextAction = { type: 'USER_CLEARED_TEXT' };
+type UpdateLoadingDotsAction = { type: 'UPDATE_LOADING_DOTS' };
 
 
 export type Action =
@@ -33,7 +34,8 @@ export type Action =
   | ProcessTextSubmittedAction
   | ProcessingChunkSuccessAction
   | UserInputTextAction
-  | UserClearedTextAction;
+  | UserClearedTextAction
+  | UpdateLoadingDotsAction;
 
 
 /**
@@ -46,6 +48,17 @@ export type Action =
  */
 export function stateReducer(state: AppState, action: Action): AppState {
   switch (action.type) {
+
+
+    // --- Animation Case ---
+    case 'UPDATE_LOADING_DOTS':
+      if (state.audioLifecycle === 'modelLoading') {
+        return {
+          ...state,
+          loadingDots: (state.loadingDots >= 6 ? 0 : state.loadingDots + 1),
+        };
+      }
+      return state;
 
 
     // --- Input Lifecycle Cases ---
@@ -87,6 +100,7 @@ export function stateReducer(state: AppState, action: Action): AppState {
         ...state,
         audioLifecycle: 'idle',
         modelLoadRetryCount: 0,
+        loadingDots: 0,
       };
 
     case 'MODEL_LOAD_FAILURE':
@@ -96,6 +110,7 @@ export function stateReducer(state: AppState, action: Action): AppState {
           ...state,
           audioLifecycle: 'error',
           errorMessage: 'Failed to load the AI model after several retries. Please reload the page.',
+          loadingDots: 0,
         };
       }
       return {
@@ -133,6 +148,12 @@ export function stateReducer(state: AppState, action: Action): AppState {
       return {
         ...state,
         audioLifecycle: 'modelLoading',
+        modelLoadRetryCount: 0,
+        processingRetryCount: 0,
+        errorMessage: null,
+        processingProgress: 0,
+        processingTotal: 0,
+        loadingDots: 0,
       };
 
     case 'USER_PLAYED_AUDIO':

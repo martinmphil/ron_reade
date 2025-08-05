@@ -76,6 +76,14 @@ a:hover {
   margin-bottom: 0;
 }
 
+#status_report.loading::after {
+  content: var(--loading-dots, '');
+  display: inline-block;
+  vertical-align: bottom;
+  min-width: 3ch;
+  text-align: left;
+}
+
 #ron_text {
   width: 100%;
   background-color: #ffffff;
