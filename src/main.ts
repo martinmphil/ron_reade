@@ -72,7 +72,6 @@ function setupEventListeners(elements: UIElements, dispatch: (action: Action) =>
 
   elements.clearButton.addEventListener('click', () => {
     elements.ronText.value = '';
-    elements.ronText.dispatchEvent(new Event('input'));
     dispatch({ type: 'USER_CLEARED_TEXT' });
   });
 
