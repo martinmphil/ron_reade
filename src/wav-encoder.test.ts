@@ -3,11 +3,18 @@ import { encodeWav } from './wav-encoder';
 
 describe('WAV Encoder', () => {
   const sampleRate = 16000;
-  // Create some simple dummy audio data for testing
   const audioData = new Float32Array([0.1, -0.1, 0.2, -0.2, 0.3]);
-
-  // Generate the WAV blob once for all tests
   const wavBlob = encodeWav(audioData, sampleRate);
+
+  // Helper to read a Blob as an ArrayBuffer using FileReader
+  const readBlobAsArrayBuffer = (blob: Blob): Promise<ArrayBuffer> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as ArrayBuffer);
+      reader.onerror = () => reject(reader.error);
+      reader.readAsArrayBuffer(blob);
+    });
+  };
 
   // Helper function to read a string from a DataView
   const getString = (view: DataView, offset: number, length: number) => {
@@ -23,7 +30,7 @@ describe('WAV Encoder', () => {
   });
 
   it('should have the correct header markers (RIFF, WAVE, fmt, data)', async () => {
-    const buffer = await wavBlob.arrayBuffer();
+    const buffer = await readBlobAsArrayBuffer(wavBlob);
     const view = new DataView(buffer);
 
     expect(getString(view, 0, 4)).toBe('RIFF');
@@ -33,7 +40,7 @@ describe('WAV Encoder', () => {
   });
 
   it('should correctly calculate file and data sizes', async () => {
-    const buffer = await wavBlob.arrayBuffer();
+    const buffer = await readBlobAsArrayBuffer(wavBlob);
     const view = new DataView(buffer);
     const bytesPerSample = 4; // 32-bit float
     const expectedDataSize = audioData.length * bytesPerSample;
@@ -45,7 +52,7 @@ describe('WAV Encoder', () => {
   });
 
   it('should write the correct format parameters in the "fmt" chunk', async () => {
-    const buffer = await wavBlob.arrayBuffer();
+    const buffer = await readBlobAsArrayBuffer(wavBlob);
     const view = new DataView(buffer);
 
     const numChannels = 1;
@@ -64,7 +71,7 @@ describe('WAV Encoder', () => {
   });
 
   it('should correctly write the Float32 audio data', async () => {
-    const buffer = await wavBlob.arrayBuffer();
+    const buffer = await readBlobAsArrayBuffer(wavBlob);
     const view = new DataView(buffer);
 
     // Check the first and last samples to ensure data integrity

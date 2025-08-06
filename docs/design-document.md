@@ -42,7 +42,7 @@ The text input area remains active while the app processes the user's text which
 
 The `halt_button` is enabled only while the app is processing text. Pressing the `halt_button` terminates the current web worker, discards any partially generated audio, and reloads the model.
 
-When all the audio has been processed, the `audio_output` element becomes opaque. The `status_report` paragraph displays: "Please press the play button on the audio player above." The user can then play, pause, or rewind the audio at their convenience.
+When the user's full text has been processed into audio, the `audio_output` element becomes opaque. The `status_report` paragraph displays: "Please press the play button on the audio player above." The user can then play, pause, or rewind the audio at their convenience.
 
 The `process_text_button` is disabled while audio is playing but is re-enabled if the user modifies the text in the `ron_text` text area.
 
