@@ -140,6 +140,20 @@ describe('UI Manager: renderUI', () => {
     });
   });
 
+  describe('Model Loading Failure', () => {
+    it('should display an error message if the model fails to load', () => {
+      const elements = getUIElements();
+      let state: AppState = { ...initialState, modelLoadRetryCount: 6 };
+      const action: Action = { type: 'MODEL_LOAD_FAILURE' };
+      state = stateReducer(state, action);
+      renderUI(elements, state);
+
+      expect(elements.statusReport.textContent).toBe('Failed to load the AI model after several retries. Please reload the page.');
+      expect(elements.processTextButton.disabled).toBe(true);
+      expect(elements.haltButton.disabled).toBe(true);
+    });
+  });
+
 });
 
 describe('UI Manager: Full Interaction Loop', () => {
