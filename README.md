@@ -8,9 +8,13 @@ Ron Reade uses small machine-learning models from [Xenova](https://github.com/xe
 
 This project employs HTML, CSS, TypeScript, [Vite](https://en.wikipedia.org/wiki/Vite_(software)) and [Vitest](https://vitest.dev/). 
 
-## Scripts
+## Tests
 
-Run unit tests with `npm run test`.
+Run automated tests with `npm run test`.
+
+To manually test the download failure mode, temporarily edit `voicing.worker.ts` by replacing the model name `Xenova/speecht5_tts` with a non-existent model name like `Xenova/non-existent-model`.
+
+## Scripts
 
 To see this app running in a development server, use `npm run dev`. 
 
