@@ -7,7 +7,7 @@ import { initializeVoicingService, loadModel, processTextToAudio } from './voici
 import { chunkText } from './chunk-text';
 import { encodeWav } from './wav-encoder';
 
-// A constant for the audio sample rate, as defined by the text-to-speech model.
+// A constant for the audio sample rate, as defined by the text-to-speech model
 const SAMPLE_RATE = 16000;
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = initialView;
@@ -20,16 +20,16 @@ const store = {
 // --- Initialise App ---
 document.addEventListener('DOMContentLoaded', main);
 window.addEventListener('pageshow', (event) => {
-  // Re-initialize the app if the page is loaded from the back-forward cache
+  // Re-initialise the app if the page is loaded from the back-forward cache
   if (event.persisted) {
     main();
   }
 });
 
 /**
- * The main entry point for the application.
+ * The main entry point for the application
  */
-function main() {
+export function main() {
   const elements: UIElements = {
     ronText: document.getElementById('ron_text') as HTMLTextAreaElement,
     processTextButton: document.getElementById('process_text_button') as HTMLButtonElement,
@@ -40,7 +40,7 @@ function main() {
     statusReport: document.getElementById('status_report') as HTMLParagraphElement,
   };
 
-  // dispatch function is later passed to event listeners and render-UI fn
+  // Dispatch function is later passed to event listeners and render-UI function
   const dispatch = (action: Action) => {
     const newState = stateReducer(store.state, action);
     if (newState !== store.state) {
@@ -63,7 +63,7 @@ function main() {
  */
 
 /**
- * Attach all necessary DOM event listeners to the UI elements.
+ * Attach DOM event listeners to UI elements
  */
 function setupEventListeners(elements: UIElements, dispatch: (action: Action) => void) {
   elements.ronText.addEventListener('input', () => {
@@ -102,7 +102,7 @@ function setupEventListeners(elements: UIElements, dispatch: (action: Action) =>
 }
 
 /**
- * Manages the process of loading the model with retry logic.
+ * Manages the process of loading the model with retry logic
  */
 async function initializeModel(dispatch: (action: Action) => void) {
   const loadingAnimation = setInterval(() => {
@@ -128,7 +128,7 @@ async function initializeModel(dispatch: (action: Action) => void) {
 }
 
 /**
- * Manages the full text-to-speech conversion pipeline.
+ * Manages the full text-to-speech conversion pipeline
  */
 async function runTextProcessing(
   dispatch: (action: Action) => void,
@@ -146,7 +146,7 @@ async function runTextProcessing(
 
   let combinedAudio = new Float32Array(0);
 
-  // Chunk the text first to get the total count.
+  // Chunk the text first to get the total chunk count.
   const textChunks = chunkText(text);
   if (textChunks.length === 0) return;
 
@@ -179,7 +179,7 @@ async function runTextProcessing(
     const audioUrl = URL.createObjectURL(wavBlob);
     elements.audioOutput.src = audioUrl;
 
-    // Signal successful processing
+    // Signal successful processing.
     dispatch({ type: 'PROCESSING_SUCCESS', payload: text });
 
   } catch (error) {

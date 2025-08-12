@@ -13,7 +13,7 @@ export function setSynthesizer(newSynthesizer: any) {
 }
 
 /**
- * Initializes the Transformers.js environment and loads the required
+ * Initialises the Transformers.js environment and loads the required
  * text-to-speech model.
  */
 export async function loadModel(): Promise<void> {

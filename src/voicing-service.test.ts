@@ -35,7 +35,7 @@ describe('Voicing Service', () => {
     expect(Worker).toHaveBeenCalledTimes(1);
   });
 
-  it('should terminate the existing worker if initialized again', () => {
+  it('should terminate the existing worker if initialised again', () => {
     service.initializeVoicingService(); // First call
     expect(Worker).toHaveBeenCalledTimes(1);
 

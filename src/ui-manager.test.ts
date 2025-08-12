@@ -29,7 +29,6 @@ const dom = new JSDOM(`
 globalThis.document = dom.window.document;
 globalThis.window = dom.window as any;
 
-// A helper function to get all the UI elements from the DOM
 const getUIElements = (): UIElements => ({
   ronText: document.getElementById('ron_text') as HTMLTextAreaElement,
   processTextButton: document.getElementById('process_text_button') as HTMLButtonElement,
@@ -42,7 +41,7 @@ const getUIElements = (): UIElements => ({
 
 describe('UI Manager: renderUI', () => {
 
-  // Reset the DOM to its initial state before each test
+  // Reset the DOM to initial state before each test
   beforeEach(() => {
     const elements = getUIElements();
     elements.ronText.value = '';
@@ -88,7 +87,6 @@ describe('UI Manager: renderUI', () => {
       renderUI(elements, state);
 
       expect(elements.processTextButton.disabled).toBe(true);
-      // Halt button enabled
       expect(elements.haltButton.disabled).toBe(false);
       expect(elements.statusReport.textContent?.toLowerCase()).toContain('processing');
       expect(elements.audioOutput.style.opacity).toBe('0.4');
@@ -188,7 +186,7 @@ describe('UI Manager: Full Interaction Loop', () => {
     state = { ...initialState };
     document.body.innerHTML = dom.window.document.body.innerHTML;
     elements = getUIElements();
-    setupTestEventListeners(); // Set up listeners for each test
+    setupTestEventListeners();
     renderUI(elements, state);
   });
 
@@ -201,7 +199,7 @@ describe('UI Manager: Full Interaction Loop', () => {
       expect(elements.processTextButton.disabled).toBe(true);
       expect(elements.clearButton.disabled).toBe(true);
 
-      // Action: Simulate user typing. The listener will now automatically call dispatch.
+      // Action: Simulate user typing.
       elements.ronText.value = 'Hello world';
       elements.ronText.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
 
@@ -216,7 +214,7 @@ describe('UI Manager: Full Interaction Loop', () => {
       state.audioLifecycle = 'idle';
       elements.ronText.value = 'Hello world';
       elements.ronText.dispatchEvent(new dom.window.Event('input', { bubbles: true }));
-      expect(elements.clearButton.disabled).toBe(false); // Sanity check
+      expect(elements.clearButton.disabled).toBe(false);
 
       // Action: Simulate user clicking clear. The listener handles the logic.
       elements.clearButton.click();

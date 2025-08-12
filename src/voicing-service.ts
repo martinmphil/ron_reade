@@ -1,7 +1,7 @@
 let worker: Worker | null = null;
 
 /**
- * Initializes the voicing service by creating a new web worker.
+ * Initialises the voicing service by creating a new web worker.
  */
 export function initializeVoicingService(): void {
   if (worker) {

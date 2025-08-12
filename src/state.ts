@@ -1,5 +1,5 @@
 /**
- * Defines the possible states for the core text-to-speech and playback process.
+ * Defines all states for the core text-to-speech and playback process
  */
 export type AudioLifecycleState =
   | 'modelLoading'
@@ -13,11 +13,11 @@ export type AudioLifecycleState =
 
 
 /**
- * Defines the overall application state using a statechart-like model.
+ * Defines the overall application state using a statechart-like model
  */
 export interface AppState {
   audioLifecycle: AudioLifecycleState;
-  
+
   modelLoadRetryCount: number;
   processingRetryCount: number;
   errorMessage: string | null;
@@ -28,7 +28,7 @@ export interface AppState {
 }
 
 /**
- * The initial state of the application when it first loads.
+ * The initial state of the application
  */
 export const initialState: AppState = {
   audioLifecycle: 'modelLoading',
