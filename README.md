@@ -1,5 +1,6 @@
 # Ron Reade 
 Realistic Text-To-Speech in a browser with local neural networks. 
+🖹🡒🗣 
 
 ## Summary 
 The Ron Reade text-to-speech web app reads text aloud to a user. A user inputs text which the app converts into audio via a compact artificial neural network running locally in their web browser. The app verbalises the user's text directly in their browser as an audio stream with realistic speech patterns and natural cadence. 
