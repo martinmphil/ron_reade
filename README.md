@@ -9,6 +9,12 @@ Ron Reade uses small machine-learning models from [Xenova](https://github.com/xe
 
 This project employs HTML, CSS, TypeScript, [Vite](https://en.wikipedia.org/wiki/Vite_(software)) and [Vitest](https://vitest.dev/). 
 
+## Requirements 
+See [requirements.md](./docs/requirements.md)
+
+## Design documentation
+See [design.md](./docs/design.md)
+
 ## Tests
 
 Run automated tests with `npm run test`.
