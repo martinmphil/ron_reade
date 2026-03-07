@@ -3,7 +3,7 @@ The webpage page shall function effectively in the latest versions of Firefox, S
 
 The app shall handle differences in audio codec support across browsers.
 
-The app shall provide fallback behaviour for browsers that don't support required features.
+The app shall detect and handle browser-specific limitations and provide fallback behaviour for browsers that don't support required features.
 
 The webpage shall adhere to free and open web standards. 
 
@@ -13,9 +13,9 @@ Script modules shall use ECMAScript module (ESM) syntax.
 
 The app shall support text to audio conversion of at least 10,000 characters without performance degradation.
 
-User text input shall not be transmitted to any external server.
+All speech synthesis shall occur locally in the browser. 
 
-All speech synthesis shall occur locally in the browser.
+The app shall not transmit user data to any external destination. 
 
 The app shall not store user text input beyond the current session.
 
@@ -26,7 +26,7 @@ When the cached model is available, the app shall use it instead of downloading 
 
 The app shall provide a mechanism to clear cached model data if needed.
 
-# Open Page 
+# App Start 
 Speaker embeddings shall be loaded from a local binary file.
 
 The webpage shall display a text input area. 
@@ -61,17 +61,6 @@ If network connectivity is lost during model download, then the app shall provid
 
 # Text Chunking
 When converting text to audio, the app shall segment the text entered by the user into chunks such that each chunk length is the smallest of 400 characters or 1 sentence as defined by a period character or a new line. 
-
-# Web Worker
-The app shall remain responsive while processing text to audio conversion by running synthesis in a Web Worker.
-
-When the Web Worker encounters an error during synthesis, the app shall gracefully handle the error and return to a ready state.
-
-If the browser does not support Web Workers, the app shall display an appropriate error message.
-
-If the browser does not support the Web Audio API, the app shall gracefully degrade or inform the user.
-
-The app shall detect and handle browser-specific limitations for Web Workers.
 
 # Text Input Validation
 The text input area shall accept a maximum of 10,000 characters.
