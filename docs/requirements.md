@@ -1,197 +1,166 @@
-# Cross Functional Requirements
-The webpage page shall function effectively in the latest versions of Firefox, Safari and Chrome browsers (and preferably also on recent legacy versions). 
+Requirements
+============
 
-The app shall handle differences in audio codec support across browsers.
+This document contains the requirements for Ron Reade text-to-speech web app. 
+
+App requirements are typically formatted using [EARS](https://alistairmavin.com/ears/) syntax. 
+
+# Goal 
+Hosting a portable, usable, aesthetically pleasing text-to-speech web app represents success. 
+
+# User Stories 
+As a user, I want to hear my written text narrated aloud in realistic speech patterns with natural prosody. 
+
+# State Chart 
+Essential requirements are described in the `./state-chart-tables` directory holding the State Chart files specified in tabular form as `event-dictionary.md`, `glossary.md`, `state-dictionary.md` and `transition-map.md` 
+
+# Cross Functional Requirements
+The app shall process text-to-speech as quickly as possible.
+
+The webpage page shall function effectively in the latest versions of Firefox, Safari and Chrome browsers (and preferably also on recent legacy versions). 
 
 The app shall detect and handle browser-specific limitations and provide fallback behaviour for browsers that don't support required features.
 
 The webpage shall adhere to free and open web standards. 
 
-The webpage shall be constructed from semantic HTML and standard CSS and TypeScript transpiled into JavaScript. 
-
-Script modules shall use ECMAScript module (ESM) syntax. 
-
-The app shall support text to audio conversion of at least 10,000 characters without performance degradation.
+The app shall support text-to-speech conversion of at least 10,000 characters without performance degradation.
 
 All speech synthesis shall occur locally in the browser. 
 
-The app shall not transmit user data to any external destination. 
+The app shall keep all user data private. 
 
-The app shall not store user text input beyond the current session.
+The app shall only store user text input during the current browser session. 
 
-# Cache
-The app shall use the browser cache to store large model files for for subsequent visits.
+# User Interface (UI)
+The user interface shall always remain responsive. 
 
-When the cached model is available, the app shall use it instead of downloading again.
-
-The app shall provide a mechanism to clear cached model data if needed.
-
-# App Start 
-Speaker embeddings shall be loaded from a local binary file.
-
-The webpage shall display a text input area. 
-
-The text input area shall display clear instructions for the user to enter text. 
+The webpage shall display a text-area for user input. 
 
 The webpage shall display a "Create Speech" button.
 
 The webpage shall display a "Clear Text" button.
 
-The webpage shall display a "Halt Processing" button.
+The webpage shall display a "Halt Processing" button. 
 
-The webpage shall display an audio player.
+When the app opens, the webpage shall display a semitransparent audio player. 
 
-When the webpage opens, the app shall download the artificial neural network model. 
+While no audio data exists, the audio element shall remain semitransparent. 
 
-If model loading fails, then the app shall retry downloading the model. 
+When audio data becomes available to play, the audio player shall become fully opaque. 
 
-If retrying model loading fails, then the app shall attempt a second retry at downloading the model. 
+The webpage shall display a status message paragraph. 
 
-If the second retry at downloading the model fails, then the app shall raise a model-loading error. 
+The text-area shall display clear instructions for the user to enter text. 
 
-While the model downloads, all speech-to-text control buttons shall be disabled. 
+Opacity transitions shall fade pleasingly. 
 
-While the model downloads, the app shall allow users to enter text into the text input area. 
+While an ongoing background process continues for a long duration, the webpage shall avoid the perception of system freeze by indicating activity with an animated ellipsis appended to the status message paragraph. 
 
-While the model downloads the audio element shall be semitransparent. 
+When an ongoing background process completes, the animated ellipsis shall disappear. 
 
-When model successfully downloads the audio element shall become fully opaque. 
+# Model Loading
+When the app opens, the app shall load the text-to-speech artificial-neural-network model and all associated necessary resources. 
 
-If network connectivity is lost during model download, then the app shall provide appropriate feedback.
+While the model downloads, the Create Speech button shall be disabled. 
 
-# Text Chunking
-When converting text to audio, the app shall segment the text entered by the user into chunks such that each chunk length is the smallest of 400 characters or 1 sentence as defined by a period character or a new line. 
+While the model downloads, the Halt Processing button shall be disabled. 
 
-# Text Input Validation
-The text input area shall accept a maximum of 10,000 characters.
+While the model downloads, the text-area shall accept user input. 
 
-When the text input area reaches maximum capacity, the app shall prevent further text entry.
+If model loading fails, then the app shall implement a timely retry strategy. 
 
-The app shall provide visual feedback when approaching the character limit.
+## Cache
+The app shall use the browser cache to store large model files. 
 
-The text input area shall accept standard Unicode text characters.
-
-The text input area shall preserve line breaks and paragraph structure entered by the user.
+When cached files are available, the app shall use these cached files instead of downloading the same large files again via the internet. 
 
 # Status message
-When the webpage opens, the status message shall show "Downloading artificial neural network." as an ongoing process. 
+When the app opens, the status message shall show "Downloading artificial neural network." as an ongoing process with an animated ellipsis. 
 
-The webpage shall display the progress of ongoing process by regularly adding period characters to the end of the status message. 
+If model loading fails, while the app attempts a model loading retry strategy, then the status message shall show `Model loading failed - retry {retry_count}`. 
 
-When the number of periods characters at the end of the status message reaches 5, the status bar shall reset to a single period character as the end of the status message. 
+If the model loading retry strategy fails, then the status message shall show "Sadly we encountered a problem. Please reload this page or try again later." 
 
-If model loading fails, then the status message shall show "Retrying download."
+When the model successfully loads, the status message shall show "Please enter text to be read aloud." 
 
-If retrying model loading fails, then then the status message shall show the status message shall show "Second download retry."  as an ongoing process. 
+While the app is converting text-to-speech, the status message shall show `Processing text chunk {current_chunk_number} of {total_number_of_chunks}.` with an animated ellipsis. 
 
-If the second retry at downloading the model fails, then the status message shall show "Please try reloading the page." 
+When audio player is ready to play audio data, the status message shall show "Ready." 
 
-When the model successfully loads, the status message shall show "Ready to convert your text into speech." 
+If the text-to-speech conversion process fails, then the status message shall show "Sadly we encountered a problem. Please try again."
 
-While the model is active, and when the text input is empty, the status message shall show "Please enter text to be read aloud." 
+If any unrecoverable error occurs, then the status message shall show "Sadly we encountered a problem. Please reload this page or try again later." 
 
-While the model is active, and when the user has entered new text into the text input, the status message shall show "Ready to convert your text into speech."
+# Text Chunking
+When text-to-speech processing starts, the app shall help maintain natural prosody by segmenting text entered by the user in the text-area into manageable chunks. 
 
-While the app is converting text to audio, the status message shall show `Processing chunk {current_chunk_number} of {total_number_of_chunks}.` 
+While chunking text for processing, the app shall only split chunks at word boundaries. 
 
-When the text to audio conversion job completes, the status message shall show "Please press play on the audio player." 
+The app shall chunk text using a top-down hierarchical in the following hierarchical order:
+1. Paragraph-Level Segmentation 
+The app shall first identify paragraphs based on line breaks provided in the user input. 
+If a paragraph contains 400 characters or fewer, it shall be assigned as a single processing chunk. 
+If a paragraph exceeds 400 characters, the app shall proceed to Sentence-Level Segmentation for that specific paragraph. 
+2. Sentence-Level Segmentation 
+For paragraphs exceeding the character limit, the app shall identify individual sentences. 
+If a sentence contains 400 characters or fewer, it shall be assigned as a single processing chunk. 
+If an individual sentence exceeds 400 characters, the app shall proceed to Word-Boundary Segmentation for that specific sentence. 
+3. Word-Boundary Segmentation (Fallback) 
+For sentences exceeding 400 characters, the app shall segment the text into chunks at the nearest word boundary that does not exceed the 400-character limit. 
+The app shall never split a chunk inside a word. 
 
-If the text to audio conversion job generates a fault, then the status message shall show "Please try reloading the page." 
+# Text Input
+The text-area shall accept pasted text.
 
-When the text to audio conversion job has completed, and when the user presses the play button on the audio player, the status message shall show "Playback in progress." 
+The text-area shall accept keyboard text.
 
-When the text to audio conversion job has completed, and when the user presses the pause button on the audio player, the status message shall show "Playback paused." 
+The text-area shall accept a maximum of 10,000 characters. 
 
-While the model is active, and when the user presses the pause button on the audio player, and when the user has entered new text into the text input, the status message shall show "Playback paused. Ready to process new text." 
+When the text-area reaches maximum capacity, the text-area shall prevent further text entry. 
 
-If the audio playback generates a fault, then the status message shall show "Please try reloading the page." 
+When the text-area reaches maximum capacity, the status message shall show "Text too long. Please limit your input to 10,000 characters." 
 
-While the model is active, and when audio playback finishes, the status message shall show "Please enter new text to be read aloud." 
+When the text-area approaches maximum capacity, the text-area shall provide visual feedback to the user. 
 
-If any unhandled error occurs, then the status message shall show "Please try reloading the page." 
-
-# User Interactions
-When the user navigates to the webpage, the input box shall accept pasted text to be read aloud.
-
-When the user navigates to the webpage, the input box shall accept keyboard text input to be read aloud.
-
-When the user has entered text into the input box, the webpage shall offer a button to clear the input box. 
-
-When the user triggers a text to audio conversion job, the app shall start converting the user's text input into audio output. 
-
-When the user halts the text to audio conversion job, the app shall immediately terminate the speech synthesis process, discard any partially generated audio, and return to a state ready to synthesise speech with the current contents of the text input area.
-
-When the user halts the text to audio conversion job the webpage shall accept new text input. 
-
-When the text to audio conversion job completes, the webpage audio player becomes available for playback. 
-
-When the audio plays, the webpage audio player shall offer users the standard controls of pause, play, or jump to any arbitrary moment in the audio.
-
-When the user enters new keyboard input, the webpage shall become ready to convert this new text input into audio output. 
-
-When the user pastes new text into the webpage, the webpage shall become ready to convert this new text input into audio output.
-
-While the text input area is clear, the Create Speech button shall be disabled.
-
-While the text input area remains unchanged, when the Create Speech button is pressed, the Create Speech button shall become disabled. 
-
-When the user pastes or types new text into the text input area, the Create Speech button shall become enabled. 
+If the text-area input contains any word longer than 50 characters, then the status message shall show "Your text contains overly long words. Please provide plain text where all words are shorter than 50 letters." 
 
 ## Clear Text Button
-When the user enters text into the text input area element, the Clear Text button shall become enabled. 
+When the user presses the Clear Text button, the text-area shall clear. 
 
-While the Clear Text button is enabled, and when the user presses the Clear Text button, the text input area shall clear.
+While text-to-speech conversion is in progress, when the user presses the Clear Text button, the ongoing text-to-speech conversion process shall continue uninterrupted. 
 
-While the text input area is empty, the Clear Text button shall be disabled.
+While audio is playing, when the user presses the Clear Text button, playback shall continue uninterrupted. 
 
-While synthesis is in progress, the Clear Text button shall remain enabled to allow users to clear text without halting synthesis.
+## Text-To-Speech Conversion 
+When the user presses the Create Speech button, while the Create Speech button is enabled, and while the text exists, and while the text length is under 10,000 characters, and while every word in the text is under 50 characters, the app shall terminate any current audio playback and flush all audio data, and make the audio player semitransparent, and begin the text-to-speech conversion process. 
 
-When the Clear Text button is pressed during audio playback, playback shall continue uninterrupted.
+If the text-area contains a word equal to or exceeding 50 characters, then the app shall prevent the initiation of the speech-to-text process. 
 
-## Triggering Text to Audio Conversion 
-While the model is active, when the user enters new text into the text input area, the Create Speech button shall be enabled. 
+If the total character count in the text-area exceeds 10,000 characters, then the app shall prevent the initiation of the speech-to-text process. 
 
-While the model is active, and while the Create Speech button is enabled, when the user presses the Create Speech button, the app shall start the job of converting text into audio. 
+If the text-area is empty when the user presses the Create Speech button, then the app shall prevent the initiation of the speech-to-text process and the status message shall show "Please enter text to be read aloud." 
 
-## Halt Processing Button
-While the app is not converting text to audio the Halt Processing button shall be disabled. 
+When the text-to-speech conversion process begins, the app shall take an immutable snapshot the user's text content in text-area and save this as an input source for the text-to-speech process. 
 
-While the app converts text to audio the Halt Processing button shall be enabled. 
+While the app is converting text-to-speech, the Create Speech button shall be disabled. 
 
-While the app is converting text to audio, when the user presses the Halt Processing button, the app shall terminate the text to audio conversion job. 
+## Halt Processing Button 
+While the app is awaiting a text-to-speech conversion job, the Halt Processing button shall be disabled. 
 
-While the app is converting text to audio, when the user clears the text input area, the Halt Processing button shall remain enabled.
+While the app is converting text-to-speech, the Halt Processing button shall be enabled. 
 
-When the user presses the Halt Processing button, the app shall immediately terminate the speech synthesis process in the web worker.
-
-When the user presses the Halt Processing button, the app shall discard any partially generated audio chunks.
-
-While there is text in the text input area, and when the user presses the Halt Processing button, the app shall transition to a state ready to synthesise speech with the current contents of the text input area.
-
-When the user presses the Halt Processing button, the Create Speech button shall become enabled only if the text input area contains text. 
+While the app is converting text-to-speech, when the user presses the Halt Processing button, the app shall immediately abort the current speech text-to-speech conversion process, and discard all partially generated audio, and return to a state ready to convert text-to-speech with the current contents of the text-area. 
 
 # Audio Playback
-When the text to audio conversion job completes, the audio shall become fully opaque. 
+When the text-to-speech conversion job completes, the audio data shall be assigned as the audio source for the audio player. 
 
-When the text to audio conversion job has completes and the audio is primed for playback, the audio element shall offer the user audio controls to play, pause, or rewind the audio at their convenience. 
+When audio data becomes available to play, the audio player shall offer users the standard controls of pause, play, or jump to any arbitrary moment in the audio. 
 
-While the audio is playing, the Create Speech button shall be disabled. 
+When audio data becomes available to play, the audio player shall display the total duration of the generated audio. 
 
-When the user pauses playback, and when the user has entered new text in the text input area, the Create Speech button shall be enabled. 
+When audio data becomes available to play, the audio player shall support volume control. 
 
-When playback finishes, and when the user has entered new text in the text input area, the Create Speech button shall be enabled. 
+When the app starts processing a new text-to-speech job, that app shall terminate current playback, and flush all audio data, and make the audio element semitransparent. 
 
-The audio player shall support volume control.
-
-The audio player shall support seeking to any position in the audio.
-
-When the user seeks to a different position during playback, playback shall continue from the new position.
-
-When audio playback is paused and the user enters new text, the paused audio shall remain available for continued playback.
-
-# Audio Output Quality
-The generated audio shall have a sampling rate of at least 16000 Hz.
-
-The generated audio shall be encoded in WAV format for playback.
-
-The audio player shall display the total duration of the generated audio. 
+# Fault Tolerance 
+If the app encounters any error or an exception, then app shall gracefully reset to a state ready to accept new input for text-to-speech conversion. 

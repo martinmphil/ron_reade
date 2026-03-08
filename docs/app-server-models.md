@@ -1,6 +1,6 @@
 # Hosting model files on app server 
 
-When currently using the Ron Reade web app, a user's web browser downloads from hugging-face content-delivery-network (CDN). Alternatively this app could be constructed to host model files locally. 
+Currently, when using the Ron Reade web app, the user's web browser downloads model files from hugging-face content-delivery-network (CDN). Alternatively this app could be constructed to host model files locally. 
 
 ## JavaScript exemplar
 

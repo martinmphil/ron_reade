@@ -12,14 +12,14 @@ This project employs HTML, CSS, TypeScript, [Vite](https://en.wikipedia.org/wiki
 ## Requirements 
 See [requirements.md](./docs/requirements.md)
 
-## Design documentation
-See [design.md](./docs/design.md)
+## State Chart
+See state-chart [diagram](./docs/state-chart/diagram-state-chart-xstate.png) and tables for [event-dictionary](./docs/state-chart/event-dictionary.md), [state-dictionary](./docs/state-chart/state-dictionary.md) and [transition-map](./docs/state-chart/transition-map.md). 
 
 ## Tests
 
-Run automated tests with `npm run test`.
+Run end-to-end tests in Safari with `npx playwright test --project=webkit`. 
 
-To manually test the download failure mode, temporarily edit `voicing.worker.ts` by replacing the model name `Xenova/speecht5_tts` with a non-existent model name like `Xenova/non-existent-model`.
+Run end-to-end tests in Firefox with `npx playwright test --project=firefox`. 
 
 ## Scripts
 
@@ -29,7 +29,7 @@ To build for distribution in the `dist` directory, use `npm run build`.
 
 To preview the distribution `dist` directory, use `npm run build` followed by `npm run preview`. 
 
-## Audio samples 
+## Audio Samples 
 The text-to-speech pipeline creates an audio buffer object (ie audio chunk). 
 This audio chunk object has an `audio` property which holds the audio waveform data in a Float32Array as an audio sample. 
 eg 
@@ -44,10 +44,10 @@ eg
 }
 ```
 
-## AI assist
+## AI Assist
 Creating this web app involved collaboration with machine learning systems including [Google Gemini](https://gemini.google.com/), [perplexity.ai](https://www.perplexity.ai/), [claude.ai](https://claude.ai) and [windsurf](https://windsurf.com/). 
 
-## External licenses
+## External Licenses
 [Hugging Face](https://huggingface.co/) released the transformers.js under an Apache 2.0 License. The base models of [speecht5_tts](https://huggingface.co/microsoft/speecht5_tts) and the [speecht5_hifigan](https://huggingface.co/microsoft/speecht5_hifigan) vocoder are released under an MIT license. 
 
 ## References 
