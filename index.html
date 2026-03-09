@@ -1,16 +1,46 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ron Reade</title>
+  <meta name="theme-color" content="#0a0a0a" />
+  <meta name="description" content="Ron Reade — convert text to natural-sounding speech in your browser." />
+  <title>Ron Reade - Text to Speech</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
-  <div id="app"></div>
-  <script type="module" src="/src/main.ts"></script>
+  <main>
+    <h1>Convert text to speech</h1>
+    <p><label for="ron_text">Enter text:</label></p>
+    <textarea name="ron_text" id="ron_text" rows="12" cols="36" placeholder="Enter text here"></textarea>
+    <div role="group" aria-label="text-to-speech controls">
+      <button id="process_text_button" type="button" disabled>Create Speech</button>
+      <button id="clear_button" type="button">Clear Text</button>
+      <button id="halt_button" type="button" disabled>Halt Processing</button>
+    </div>
+    <audio id="audio_output" controls></audio>
+    <p id="status_report">Downloading artificial neural network</p>
+  </main>
+  <footer>
+    <h2>How it works</h2>
+    <p>
+      This web app uses advanced machine-learning running right in your browser to
+      convert text into natural-sounding speech. Your text stays private on your device.
+    </p>
+    <p>
+      Powered by <a href="https://huggingface.co/docs/transformers.js/index" target="_blank"
+        rel="noopener noreferrer">Transformers.js</a>
+      and <a href="https://huggingface.co/Xenova/speecht5_tts" target="_blank" rel="noopener noreferrer">Xenova</a>.
+    </p>
+    <p>
+      Ron Reade project on <a href="https://github.com/martinmphil/ron_reade" target="_blank"
+        rel="noopener noreferrer">GitHub</a>
+    </p>
+  </footer>
+  <script type="module" src="src/app.ts"></script>
 </body>
 
 </html>
